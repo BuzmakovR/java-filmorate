@@ -13,19 +13,19 @@ import java.time.LocalDate;
 @Builder
 public class User {
 
-	Long id;
+	private Long id;
 
 	@Email
 	@NotBlank(message = "Email должен быть заполнен")
-	String email;
+	private String email;
 
 	@NotBlank(message = "Логин должен быть заполнен")
-	String login;
+	private String login;
 
-	String name;
+	private String name;
 
 	@PastOrPresent(message = "Дата рождения не может быть в будущем")
-	LocalDate birthday;
+	private LocalDate birthday;
 
 	public void validate() {
 		if (getLogin() == null || getLogin().isBlank() || getLogin().contains(" ")) {

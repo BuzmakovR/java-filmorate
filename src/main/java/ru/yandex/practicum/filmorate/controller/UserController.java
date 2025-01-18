@@ -52,21 +52,16 @@ public class UserController {
 			throw new ValidationException("Id пользователя должен быть указан");
 		}
 		if (users.containsKey(newUser.getId())) {
-			User oldUser = users.get(newUser.getId());
-			oldUser.setLogin(newUser.getLogin());
-			oldUser.setEmail(newUser.getEmail());
-			oldUser.setName(newUser.getName());
-			oldUser.setBirthday(newUser.getBirthday());
-
-			if (oldUser.getName() == null || oldUser.getName().isBlank()) {
+			if (newUser.getName() == null || newUser.getName().isBlank()) {
 				log.info("При обновлении имя не указано. В качестве значения указывается логин");
-				oldUser.setName(oldUser.getLogin());
+				newUser.setName(newUser.getLogin());
 			}
+			users.put(newUser.getId(), newUser);
 
 			log.info("Пользователь обновлен");
-			log.debug(oldUser.toString());
+			log.debug(newUser.toString());
 
-			return oldUser;
+			return newUser;
 		}
 		throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
 	}
@@ -76,19 +71,4 @@ public class UserController {
 		return ++currentMaxId;
 	}
 
-	/*private void validate(User user) {
-		if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-			throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
-		}
-		if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-			throw new ValidationException("Логин не может быть пустым и содержать пробелы");
-		}
-		if (user.getName() == null || user.getName().isBlank()) {
-			user.setName(user.getLogin());
-		}
-		if (user.getBirthday() != null &&
-				user.getBirthday().isAfter(LocalDate.now())) {
-			throw new ValidationException("Дата рождения не может быть в будущем");
-		}
-	}*/
 }

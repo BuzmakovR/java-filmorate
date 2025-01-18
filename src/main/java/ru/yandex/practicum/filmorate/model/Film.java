@@ -16,18 +16,18 @@ import java.time.Month;
 @Builder
 public class Film {
 
-	Long id;
+	private Long id;
 
 	@NotBlank(message = "Наименование должно быть заполнено")
-	String name;
+	private String name;
 
 	@Size(max = 200, message = "Максимальная длина описания — 200 символов")
-	String description;
+	private String description;
 
-	LocalDate releaseDate;
+	private LocalDate releaseDate;
 
 	@Positive(message = "Продолжительность фильма должна быть положительным числом")
-	Integer duration;
+	private Integer duration;
 
 	public void validate() {
 		if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
