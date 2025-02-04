@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -88,7 +87,7 @@ public class FilmController {
 	}
 
 	@PutMapping("/{id}/like/{userId}")
-	public void AddLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
+	public void addLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
 		filmService.addLike(filmId, userId);
 	}
 
