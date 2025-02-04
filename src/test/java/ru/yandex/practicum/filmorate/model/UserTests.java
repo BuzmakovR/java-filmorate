@@ -11,9 +11,16 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserTest {
+public class UserTests {
+
+	@Test
+	void initUser() {
+		User user = User.builder().build();
+		assertNotNull(user.getFriendIds(), "Поле friendIds не инициализируется при инициализации user");
+	}
 
 	@Test
 	void userLoginLogin() {
