@@ -6,10 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 
@@ -20,9 +18,6 @@ import java.util.Collection;
 public class UserController {
 
 	@Autowired
-	private final UserStorage userStorage;
-
-	@Autowired
 	private final UserService userService;
 
 	//region USER
@@ -30,7 +25,7 @@ public class UserController {
 	public Collection<User> findAll() {
 		log.info("Запрос на получение пользователей");
 
-		Collection<User> users = userStorage.getAll();
+		Collection<User> users = userService.getUserStorage().getAll();
 
 		log.debug("Список пользователей: {}", users);
 
@@ -41,7 +36,7 @@ public class UserController {
 	public User get(@PathVariable("id") long id) {
 		log.info("Запрос на получение пользователя с ID: {}", id);
 
-		User user = userStorage.get(id).orElseThrow(() -> new NotFoundException("Пользователь с id = " + id + " не найден"));
+		User user = userService.getUserStorage().get(id);
 		log.debug("Полученный пользователь: {}", user);
 
 		return user;
@@ -53,7 +48,7 @@ public class UserController {
 		log.info("Запрос на создание пользователя");
 		log.debug(user.toString());
 
-		User createdUser = userStorage.add(user);
+		User createdUser = userService.getUserStorage().add(user);
 
 		log.info("Пользователь создан");
 		log.debug(createdUser.toString());
@@ -65,7 +60,7 @@ public class UserController {
 	public User update(@Valid @RequestBody User newUser) {
 		log.info("Запрос на обновление пользователя");
 
-		User updatedUser = userStorage.update(newUser);
+		User updatedUser = userService.getUserStorage().update(newUser);
 
 		log.info("Пользователь обновлен");
 		log.debug(newUser.toString());
@@ -75,7 +70,7 @@ public class UserController {
 
 	@DeleteMapping("/{id}")
 	public User delete(@PathVariable("id") long userId) {
-		return userStorage.delete(userId);
+		return userService.getUserStorage().delete(userId);
 	}
 	//endregion
 

@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,9 +60,14 @@ public class InMemoryFilmStorageTests {
 		Assertions.assertEquals(film1, films.getFirst(), "Добавленный 1 фильм не соответствует полученному");
 		Assertions.assertEquals(film2, films.get(1), "Добавленный 2 фильм не соответствует полученному");
 
-		Optional<Film> optionalFilm2 = filmStorage.get(film2.getId());
-		Assertions.assertTrue(optionalFilm2.isPresent(), "Не удалось получить 2 фильм по ID");
-		Assertions.assertEquals(film2, optionalFilm2.get(), "Добавленный 2 фильм не соответствует полученному");
+		Film filmFromStarage2 = null;
+		try {
+			filmFromStarage2 = filmStorage.get(film2.getId());
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить фильм по ID");
+		}
+		Assertions.assertNotNull(filmFromStarage2, "Не удалось получить фильм по ID");
+		Assertions.assertEquals(film2, filmFromStarage2, "Добавленный 2 фильм не соответствует полученному");
 	}
 
 	@Test
@@ -90,9 +94,14 @@ public class InMemoryFilmStorageTests {
 			Assertions.fail(e.getMessage());
 		}
 
-		Optional<Film> filmUpdatedOptional = filmStorage.get(filmUpdate.getId());
-		Assertions.assertTrue(filmUpdatedOptional.isPresent(), "Не удалось получить фильм по ID");
-		Assertions.assertEquals(filmUpdate, filmUpdatedOptional.get(), "Полученный фильм не соответствует обновленному");
+		Film filmUpdated = null;
+		try {
+			filmUpdated = filmStorage.get(filmUpdate.getId());
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить фильм по ID");
+		}
+		Assertions.assertNotNull(filmUpdated, "Не удалось получить фильм по ID");
+		Assertions.assertEquals(filmUpdate, filmUpdated, "Полученный фильм не соответствует обновленному");
 
 		final Film film2Update = Film.builder()
 				.name("film-2-not-exists")
@@ -119,8 +128,10 @@ public class InMemoryFilmStorageTests {
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
-		filmStorage.delete(film.getId());
-		Optional<Film> filmOptional = filmStorage.get(film.getId());
-		assertTrue(filmOptional.isEmpty(), "Не удалось удалить фильм");
+		final Long filmId = film.getId();
+		filmStorage.delete(filmId);
+		assertThrows(NotFoundException.class, () -> {
+			filmStorage.get(filmId);
+		}, "Не удалось удалить фильм");
 	}
 }

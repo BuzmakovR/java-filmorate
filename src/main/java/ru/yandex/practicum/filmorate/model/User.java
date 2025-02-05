@@ -36,4 +36,16 @@ public class User {
 			throw new ValidationException("Логин пользователя не может быть пустым и содержать пробелы");
 		}
 	}
+
+	public Set<Long> getFriendIds() {
+		return Set.copyOf(friendIds);
+	}
+
+	public void addFriend(final Long friendId) {
+		friendIds.add(friendId);
+	}
+
+	public void deleteFriend(final Long friendId) {
+		friendIds.remove(friendId);
+	}
 }

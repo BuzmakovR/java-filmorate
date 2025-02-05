@@ -12,19 +12,16 @@ import ru.yandex.practicum.filmorate.storage.impl.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 public class FilmServiceTests {
 
-	private FilmStorage filmStorage;
-	private UserStorage userStorage;
 	private FilmService filmService;
 
 	@BeforeEach
 	void initStorage() {
 		try {
-			filmStorage = new InMemoryFilmStorage();
-			userStorage = new InMemoryUserStorage();
+			FilmStorage filmStorage = new InMemoryFilmStorage();
+			UserStorage userStorage = new InMemoryUserStorage();
 			filmService = new FilmService(filmStorage, userStorage);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
@@ -40,8 +37,8 @@ public class FilmServiceTests {
 		User user = User.builder().login("user").build();
 		Film film = Film.builder().name("film").build();
 		try {
-			user = userStorage.add(user);
-			film = filmStorage.add(film);
+			user = filmService.getUserStorage().add(user);
+			film = filmService.getFilmStorage().add(film);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
@@ -61,9 +58,14 @@ public class FilmServiceTests {
 			Assertions.fail("Получено исключение при добавлении лайка к фильму");
 		}
 
-		Optional<Film> optionalFilm = filmStorage.get(filmId);
-		Assertions.assertTrue(optionalFilm.isPresent(), "Не удалось получить фильм по ID");
-		Assertions.assertFalse(optionalFilm.get().getUserLikes().isEmpty(), "Список лайков фильма пустой");
+		Film filmFromStorage = null;
+		try {
+			filmFromStorage = filmService.getFilmStorage().get(filmId);
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить фильм по ID");
+		}
+		Assertions.assertNotNull(filmFromStorage, "Не удалось получить фильм по ID");
+		Assertions.assertFalse(filmFromStorage.getUserLikes().isEmpty(), "Список лайков фильма пустой");
 	}
 
 	@Test
@@ -71,8 +73,8 @@ public class FilmServiceTests {
 		User user = User.builder().login("user").build();
 		Film film = Film.builder().name("film").build();
 		try {
-			user = userStorage.add(user);
-			film = filmStorage.add(film);
+			user = filmService.getUserStorage().add(user);
+			film = filmService.getFilmStorage().add(film);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
@@ -84,9 +86,14 @@ public class FilmServiceTests {
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при добавлении лайка к фильму");
 		}
-		Optional<Film> optionalFilm = filmStorage.get(filmId);
-		Assertions.assertTrue(optionalFilm.isPresent(), "Не удалось получить фильм по ID");
-		Assertions.assertFalse(optionalFilm.get().getUserLikes().isEmpty(), "Список лайков фильма пустой");
+		Film filmFromStorage = null;
+		try {
+			filmFromStorage = filmService.getFilmStorage().get(filmId);
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить фильм по ID");
+		}
+		Assertions.assertNotNull(filmFromStorage, "Не удалось получить фильм по ID");
+		Assertions.assertFalse(filmFromStorage.getUserLikes().isEmpty(), "Список лайков фильма пустой");
 
 		Assertions.assertThrows(NotFoundException.class, () -> {
 			filmService.deleteLike(-1L, -1L);
@@ -105,7 +112,7 @@ public class FilmServiceTests {
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при удалении лайка к фильму");
 		}
-		Assertions.assertTrue(optionalFilm.get().getUserLikes().isEmpty(), "После удаления список лайков фильма не пустой");
+		Assertions.assertTrue(filmFromStorage.getUserLikes().isEmpty(), "После удаления список лайков фильма не пустой");
 	}
 
 	@Test
@@ -117,11 +124,11 @@ public class FilmServiceTests {
 		Film film3 = Film.builder().name("film-3").build();
 
 		try {
-			user1 = userStorage.add(user1);
-			user2 = userStorage.add(user2);
-			film1 = filmStorage.add(film1);
-			film2 = filmStorage.add(film2);
-			film3 = filmStorage.add(film3);
+			user1 = filmService.getUserStorage().add(user1);
+			user2 = filmService.getUserStorage().add(user2);
+			film1 = filmService.getFilmStorage().add(film1);
+			film2 = filmService.getFilmStorage().add(film2);
+			film3 = filmService.getFilmStorage().add(film3);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}

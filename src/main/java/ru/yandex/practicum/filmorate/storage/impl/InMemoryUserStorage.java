@@ -6,7 +6,11 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -19,8 +23,11 @@ public class InMemoryUserStorage implements UserStorage {
 	}
 
 	@Override
-	public Optional<User> get(Long id) {
-		return Optional.ofNullable(users.get(id));
+	public User get(Long id) {
+		if (!users.containsKey(id)) {
+			throw new NotFoundException("Пользователь с id = " + id + " не найден");
+		}
+		return users.get(id);
 	}
 
 	@Override
@@ -41,17 +48,16 @@ public class InMemoryUserStorage implements UserStorage {
 			throw new ValidationException("Id пользователя должен быть указан");
 		}
 
-		Optional<User> currentOptionalUser = get(newUser.getId());
-		if (currentOptionalUser.isPresent()) {
-			if (newUser.getName() == null || newUser.getName().isBlank()) {
-				newUser.setName(newUser.getLogin());
-			}
-			newUser.getFriendIds().clear();
-			newUser.getFriendIds().addAll(currentOptionalUser.get().getFriendIds());
-			users.put(newUser.getId(), newUser);
-			return newUser;
+		User currentUser = get(newUser.getId());
+		if (newUser.getName() == null || newUser.getName().isBlank()) {
+			newUser.setName(newUser.getLogin());
 		}
-		throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+		for (Long userId : currentUser.getFriendIds()) {
+			newUser.addFriend(userId);
+		}
+
+		users.put(newUser.getId(), newUser);
+		return newUser;
 	}
 
 	@Override
@@ -62,7 +68,7 @@ public class InMemoryUserStorage implements UserStorage {
 			for (Long friendId : optionalUser.get().getFriendIds()) {
 				Optional<User> optionalFriend = Optional.ofNullable(users.get(friendId));
 				optionalFriend.ifPresent(friend -> {
-					friend.getFriendIds().remove(user.getId());
+					friend.deleteFriend(user.getId());
 					users.put(friend.getId(), friend);
 				});
 			}

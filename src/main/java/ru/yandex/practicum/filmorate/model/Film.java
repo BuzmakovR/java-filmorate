@@ -36,4 +36,16 @@ public class Film {
 		}
 	}
 
+	public Set<Long> getUserLikes() {
+		return Set.copyOf(userLikes);
+	}
+
+	public void addUserLike(final Long userId) {
+		userLikes.add(userId);
+	}
+
+	public void deleteUserLike(final Long userId) {
+		userLikes.remove(userId);
+	}
+
 }

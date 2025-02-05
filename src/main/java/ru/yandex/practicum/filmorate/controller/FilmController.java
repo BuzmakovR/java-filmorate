@@ -6,10 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
 
@@ -20,9 +18,6 @@ import java.util.Collection;
 public class FilmController {
 
 	@Autowired
-	private final FilmStorage filmStorage;
-
-	@Autowired
 	private final FilmService filmService;
 
 	//region FILM
@@ -30,7 +25,7 @@ public class FilmController {
 	public Collection<Film> findAll() {
 		log.info("Запрос на получение фильмов");
 
-		Collection<Film> filmCollection = filmStorage.getAll();
+		Collection<Film> filmCollection = filmService.getFilmStorage().getAll();
 
 		log.debug("Список фильмов: {}", filmCollection);
 
@@ -41,7 +36,8 @@ public class FilmController {
 	public Film get(@PathVariable("id") long id) {
 		log.info("Запрос на получение фильма с ID: {}", id);
 
-		Film film = filmStorage.get(id).orElseThrow(() -> new NotFoundException("Фильм с id = " + id + " не найден"));
+		Film film = filmService.getFilmStorage().get(id);
+
 		log.debug("Полученный фильм: {}", film);
 
 		return film;
@@ -53,7 +49,7 @@ public class FilmController {
 		log.info("Запрос на создание фильма");
 		log.debug(film.toString());
 
-		Film createdFilm = filmStorage.add(film);
+		Film createdFilm = filmService.getFilmStorage().add(film);
 
 		log.info("Фильм создан");
 		log.debug(film.toString());
@@ -66,7 +62,7 @@ public class FilmController {
 		log.info("Запрос на обновление фильма");
 		log.debug(newFilm.toString());
 
-		Film updatedFilm = filmStorage.update(newFilm);
+		Film updatedFilm = filmService.getFilmStorage().update(newFilm);
 
 		log.info("Фильм обновлен");
 		log.debug(updatedFilm.toString());
@@ -77,7 +73,7 @@ public class FilmController {
 
 	@DeleteMapping("/{id}")
 	public Film delete(@PathVariable("id") long filmId) {
-		return filmStorage.delete(filmId);
+		return filmService.getFilmStorage().delete(filmId);
 	}
 
 	//region FILM-LIKE

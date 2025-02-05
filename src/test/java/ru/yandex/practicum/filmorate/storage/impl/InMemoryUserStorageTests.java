@@ -8,10 +8,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class InMemoryUserStorageTests {
 
@@ -59,9 +57,14 @@ public class InMemoryUserStorageTests {
 		Assertions.assertEquals(user1, users.getFirst(), "Добавленный 1 пользователя не соответствует полученному");
 		Assertions.assertEquals(user2, users.get(1), "Добавленный 2 пользователя не соответствует полученному");
 
-		Optional<User> optionalUser2 = userStorage.get(user2.getId());
-		Assertions.assertTrue(optionalUser2.isPresent(), "Не удалось получить 2 пользователя по ID");
-		Assertions.assertEquals(user2, optionalUser2.get(), "Добавленный 2 пользователя не соответствует полученному");
+		User userFromStorage2 = null;
+		try {
+			userFromStorage2 = userStorage.get(user2.getId());
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить пользователя по ID");
+		}
+		Assertions.assertNotNull(userFromStorage2, "Не удалось получить пользователя по ID");
+		Assertions.assertEquals(user2, userFromStorage2, "Добавленный 2 пользователя не соответствует полученному");
 	}
 
 	@Test
@@ -75,20 +78,25 @@ public class InMemoryUserStorageTests {
 			Assertions.fail(e.getMessage());
 		}
 
-		User filmUpdate = User.builder()
+		User userUpdate = User.builder()
 				.login("user-1-updated")
 				.build();
-		filmUpdate.setId(user.getId());
+		userUpdate.setId(user.getId());
 
 		try {
-			userStorage.update(filmUpdate);
+			userStorage.update(userUpdate);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
 
-		Optional<User> userUpdatedOptional = userStorage.get(filmUpdate.getId());
-		Assertions.assertTrue(userUpdatedOptional.isPresent(), "Не удалось получить пользователя по ID");
-		Assertions.assertEquals(filmUpdate, userUpdatedOptional.get(), "Полученный пользователя не соответствует обновленному");
+		User userFromStorage = null;
+		try {
+			userFromStorage = userStorage.get(userUpdate.getId());
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить пользователя по ID");
+		}
+		Assertions.assertNotNull(userFromStorage, "Не удалось получить пользователя по ID");
+		Assertions.assertEquals(userUpdate, userFromStorage, "Полученный пользователя не соответствует обновленному");
 
 		final User user2Update = User.builder()
 				.login("user-2-not-exists")
@@ -113,8 +121,11 @@ public class InMemoryUserStorageTests {
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
-		userStorage.delete(user.getId());
-		Optional<User> userOptional = userStorage.get(user.getId());
-		assertTrue(userOptional.isEmpty(), "Не удалось удалить пользователя");
+		final Long userId = user.getId();
+		userStorage.delete(userId);
+
+		assertThrows(NotFoundException.class, () -> {
+			userStorage.get(userId);
+		}, "Не удалось удалить пользователя");
 	}
 }

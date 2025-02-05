@@ -1,9 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -13,10 +13,10 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Getter
 public class FilmService {
 
 	@Autowired
@@ -26,27 +26,15 @@ public class FilmService {
 	private final UserStorage userStorage;
 
 	public void addLike(Long filmId, Long userId) {
-		Optional<Film> optionalFilm = filmStorage.get(filmId);
-		if (optionalFilm.isEmpty()) {
-			throw new NotFoundException("Фильм с id = " + filmId + " не найден");
-		}
-		Optional<User> optionalUser = userStorage.get(userId);
-		if (optionalUser.isEmpty()) {
-			throw new NotFoundException("Пользователь с id = " + userId + " не найден");
-		}
-		optionalFilm.get().getUserLikes().add(optionalUser.get().getId());
+		Film film = filmStorage.get(filmId);
+		User user = userStorage.get(userId);
+		film.addUserLike(user.getId());
 	}
 
 	public void deleteLike(Long filmId, Long userId) {
-		Optional<Film> optionalFilm = filmStorage.get(filmId);
-		if (optionalFilm.isEmpty()) {
-			throw new NotFoundException("Фильм с id = " + filmId + " не найден");
-		}
-		Optional<User> optionalUser = userStorage.get(userId);
-		if (optionalUser.isEmpty()) {
-			throw new NotFoundException("Пользователь с id = " + userId + " не найден");
-		}
-		optionalFilm.get().getUserLikes().remove(optionalUser.get().getId());
+		Film film = filmStorage.get(filmId);
+		User user = userStorage.get(userId);
+		film.deleteUserLike(user.getId());
 	}
 
 	public Collection<Film> getPopularFilms(Integer count) {
@@ -59,4 +47,5 @@ public class FilmService {
 				.limit(count)
 				.toList();
 	}
+
 }

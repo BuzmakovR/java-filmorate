@@ -10,17 +10,15 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 public class UserServiceTests {
 
 	private UserService userService;
-	private UserStorage userStorage;
 
 	@BeforeEach
 	void initStorage() {
 		try {
-			userStorage = new InMemoryUserStorage();
+			UserStorage userStorage = new InMemoryUserStorage();
 			userService = new UserService(userStorage);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
@@ -36,8 +34,8 @@ public class UserServiceTests {
 		User user = User.builder().login("user").build();
 		User friend = User.builder().login("friend").build();
 		try {
-			user = userStorage.add(user);
-			friend = userStorage.add(friend);
+			user = userService.getUserStorage().add(user);
+			friend = userService.getUserStorage().add(friend);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
@@ -59,15 +57,22 @@ public class UserServiceTests {
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при добавлении в друзья");
 		}
-		Optional<User> optionalUser = userStorage.get(userId);
-		Optional<User> optionalFriends = userStorage.get(friendId);
-		Assertions.assertTrue(optionalUser.isPresent(), "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(optionalUser.get().getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertFalse(optionalUser.get().getFriendIds().isEmpty(), "Список друзей пользователя пустой");
+		User userFromStorage = null;
+		User friendsFromStorage = null;
+		try {
+			userFromStorage = userService.getUserStorage().get(userId);
+			friendsFromStorage = userService.getUserStorage().get(friendId);
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить пользователя по ID");
+		}
 
-		Assertions.assertTrue(optionalFriends.isPresent(), "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(optionalFriends.get().getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertFalse(optionalFriends.get().getFriendIds().isEmpty(), "Список друзей пользователя пустой");
+		Assertions.assertNotNull(userFromStorage, "Не удалось получить пользователя по ID");
+		Assertions.assertNotNull(userFromStorage.getFriendIds(), "Список друзей пользователя равен null");
+		Assertions.assertFalse(userFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя пустой");
+
+		Assertions.assertNotNull(friendsFromStorage, "Не удалось получить пользователя по ID");
+		Assertions.assertNotNull(friendsFromStorage.getFriendIds(), "Список друзей пользователя равен null");
+		Assertions.assertFalse(friendsFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя пустой");
 	}
 
 	@Test
@@ -79,8 +84,8 @@ public class UserServiceTests {
 		User user = User.builder().login("user").build();
 		User friend = User.builder().login("friend").build();
 		try {
-			user = userStorage.add(user);
-			friend = userStorage.add(friend);
+			user = userService.getUserStorage().add(user);
+			friend = userService.getUserStorage().add(friend);
 			userService.addFriend(user.getId(), friend.getId());
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
@@ -103,15 +108,21 @@ public class UserServiceTests {
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при удаление из друзей");
 		}
-		Optional<User> optionalUser = userStorage.get(userId);
-		Optional<User> optionalFriends = userStorage.get(friendId);
-		Assertions.assertTrue(optionalUser.isPresent(), "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(optionalUser.get().getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertTrue(optionalUser.get().getFriendIds().isEmpty(), "Список друзей пользователя не пустой");
+		User userFromStorage = null;
+		User friendsFromStorage = null;
+		try {
+			userFromStorage = userService.getUserStorage().get(userId);
+			friendsFromStorage = userService.getUserStorage().get(friendId);
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить пользователя по ID");
+		}
+		Assertions.assertNotNull(userFromStorage, "Не удалось получить пользователя по ID");
+		Assertions.assertNotNull(userFromStorage.getFriendIds(), "Список друзей пользователя равен null");
+		Assertions.assertTrue(userFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя не пустой");
 
-		Assertions.assertTrue(optionalFriends.isPresent(), "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(optionalFriends.get().getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertTrue(optionalFriends.get().getFriendIds().isEmpty(), "Список друзей пользователя не пустой");
+		Assertions.assertNotNull(friendsFromStorage, "Не удалось получить пользователя по ID");
+		Assertions.assertNotNull(friendsFromStorage.getFriendIds(), "Список друзей пользователя равен null");
+		Assertions.assertTrue(friendsFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя не пустой");
 	}
 
 	@Test
@@ -124,9 +135,9 @@ public class UserServiceTests {
 		User user2 = User.builder().login("user2").build();
 		User commonFriend = User.builder().login("commonFriend").build();
 		try {
-			user1 = userStorage.add(user1);
-			user2 = userStorage.add(user2);
-			commonFriend = userStorage.add(commonFriend);
+			user1 = userService.getUserStorage().add(user1);
+			user2 = userService.getUserStorage().add(user2);
+			commonFriend = userService.getUserStorage().add(commonFriend);
 			userService.addFriend(user1.getId(), commonFriend.getId());
 			userService.addFriend(user2.getId(), commonFriend.getId());
 		} catch (Exception e) {
