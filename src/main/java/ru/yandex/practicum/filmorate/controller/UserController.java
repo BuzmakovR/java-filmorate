@@ -25,7 +25,7 @@ public class UserController {
 	public Collection<User> findAll() {
 		log.info("Запрос на получение пользователей");
 
-		Collection<User> users = userService.getUserStorage().getAll();
+		Collection<User> users = userService.getUsers();
 
 		log.debug("Список пользователей: {}", users);
 
@@ -36,7 +36,7 @@ public class UserController {
 	public User get(@PathVariable("id") long id) {
 		log.info("Запрос на получение пользователя с ID: {}", id);
 
-		User user = userService.getUserStorage().get(id);
+		User user = userService.getUser(id);
 		log.debug("Полученный пользователь: {}", user);
 
 		return user;
@@ -48,7 +48,7 @@ public class UserController {
 		log.info("Запрос на создание пользователя");
 		log.debug(user.toString());
 
-		User createdUser = userService.getUserStorage().add(user);
+		User createdUser = userService.addUser(user);
 
 		log.info("Пользователь создан");
 		log.debug(createdUser.toString());
@@ -60,7 +60,7 @@ public class UserController {
 	public User update(@Valid @RequestBody User newUser) {
 		log.info("Запрос на обновление пользователя");
 
-		User updatedUser = userService.getUserStorage().update(newUser);
+		User updatedUser = userService.updateUser(newUser);
 
 		log.info("Пользователь обновлен");
 		log.debug(newUser.toString());
@@ -70,7 +70,7 @@ public class UserController {
 
 	@DeleteMapping("/{id}")
 	public User delete(@PathVariable("id") long userId) {
-		return userService.getUserStorage().delete(userId);
+		return userService.deleteUser(userId);
 	}
 	//endregion
 

@@ -25,7 +25,7 @@ public class FilmController {
 	public Collection<Film> findAll() {
 		log.info("Запрос на получение фильмов");
 
-		Collection<Film> filmCollection = filmService.getFilmStorage().getAll();
+		Collection<Film> filmCollection = filmService.getFilms();
 
 		log.debug("Список фильмов: {}", filmCollection);
 
@@ -36,7 +36,7 @@ public class FilmController {
 	public Film get(@PathVariable("id") long id) {
 		log.info("Запрос на получение фильма с ID: {}", id);
 
-		Film film = filmService.getFilmStorage().get(id);
+		Film film = filmService.getFilm(id);
 
 		log.debug("Полученный фильм: {}", film);
 
@@ -49,7 +49,7 @@ public class FilmController {
 		log.info("Запрос на создание фильма");
 		log.debug(film.toString());
 
-		Film createdFilm = filmService.getFilmStorage().add(film);
+		Film createdFilm = filmService.addFilm(film);
 
 		log.info("Фильм создан");
 		log.debug(film.toString());
@@ -62,7 +62,7 @@ public class FilmController {
 		log.info("Запрос на обновление фильма");
 		log.debug(newFilm.toString());
 
-		Film updatedFilm = filmService.getFilmStorage().update(newFilm);
+		Film updatedFilm = filmService.updateFilm(newFilm);
 
 		log.info("Фильм обновлен");
 		log.debug(updatedFilm.toString());
@@ -73,7 +73,7 @@ public class FilmController {
 
 	@DeleteMapping("/{id}")
 	public Film delete(@PathVariable("id") long filmId) {
-		return filmService.getFilmStorage().delete(filmId);
+		return filmService.deleteFilm(filmId);
 	}
 
 	//region FILM-LIKE

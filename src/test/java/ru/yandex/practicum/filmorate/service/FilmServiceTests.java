@@ -16,12 +16,13 @@ import java.util.List;
 public class FilmServiceTests {
 
 	private FilmService filmService;
+	private UserStorage userStorage;
 
 	@BeforeEach
 	void initStorage() {
 		try {
 			FilmStorage filmStorage = new InMemoryFilmStorage();
-			UserStorage userStorage = new InMemoryUserStorage();
+			userStorage = new InMemoryUserStorage();
 			filmService = new FilmService(filmStorage, userStorage);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
@@ -37,8 +38,8 @@ public class FilmServiceTests {
 		User user = User.builder().login("user").build();
 		Film film = Film.builder().name("film").build();
 		try {
-			user = filmService.getUserStorage().add(user);
-			film = filmService.getFilmStorage().add(film);
+			user = userStorage.add(user);
+			film = filmService.addFilm(film);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
@@ -60,7 +61,7 @@ public class FilmServiceTests {
 
 		Film filmFromStorage = null;
 		try {
-			filmFromStorage = filmService.getFilmStorage().get(filmId);
+			filmFromStorage = filmService.getFilm(filmId);
 		} catch (Exception e) {
 			Assertions.fail("Не удалось получить фильм по ID");
 		}
@@ -73,8 +74,8 @@ public class FilmServiceTests {
 		User user = User.builder().login("user").build();
 		Film film = Film.builder().name("film").build();
 		try {
-			user = filmService.getUserStorage().add(user);
-			film = filmService.getFilmStorage().add(film);
+			user = userStorage.add(user);
+			film = filmService.addFilm(film);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
@@ -88,7 +89,7 @@ public class FilmServiceTests {
 		}
 		Film filmFromStorage = null;
 		try {
-			filmFromStorage = filmService.getFilmStorage().get(filmId);
+			filmFromStorage = filmService.getFilm(filmId);
 		} catch (Exception e) {
 			Assertions.fail("Не удалось получить фильм по ID");
 		}
@@ -124,11 +125,11 @@ public class FilmServiceTests {
 		Film film3 = Film.builder().name("film-3").build();
 
 		try {
-			user1 = filmService.getUserStorage().add(user1);
-			user2 = filmService.getUserStorage().add(user2);
-			film1 = filmService.getFilmStorage().add(film1);
-			film2 = filmService.getFilmStorage().add(film2);
-			film3 = filmService.getFilmStorage().add(film3);
+			user1 = userStorage.add(user1);
+			user2 = userStorage.add(user2);
+			film1 = filmService.addFilm(film1);
+			film2 = filmService.addFilm(film2);
+			film3 = filmService.addFilm(film3);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}

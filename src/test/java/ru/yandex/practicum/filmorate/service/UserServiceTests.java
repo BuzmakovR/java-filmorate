@@ -34,8 +34,8 @@ public class UserServiceTests {
 		User user = User.builder().login("user").build();
 		User friend = User.builder().login("friend").build();
 		try {
-			user = userService.getUserStorage().add(user);
-			friend = userService.getUserStorage().add(friend);
+			user = userService.addUser(user);
+			friend = userService.addUser(friend);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
@@ -60,8 +60,8 @@ public class UserServiceTests {
 		User userFromStorage = null;
 		User friendsFromStorage = null;
 		try {
-			userFromStorage = userService.getUserStorage().get(userId);
-			friendsFromStorage = userService.getUserStorage().get(friendId);
+			userFromStorage = userService.getUser(userId);
+			friendsFromStorage = userService.getUser(friendId);
 		} catch (Exception e) {
 			Assertions.fail("Не удалось получить пользователя по ID");
 		}
@@ -84,8 +84,8 @@ public class UserServiceTests {
 		User user = User.builder().login("user").build();
 		User friend = User.builder().login("friend").build();
 		try {
-			user = userService.getUserStorage().add(user);
-			friend = userService.getUserStorage().add(friend);
+			user = userService.addUser(user);
+			friend = userService.addUser(friend);
 			userService.addFriend(user.getId(), friend.getId());
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
@@ -111,8 +111,8 @@ public class UserServiceTests {
 		User userFromStorage = null;
 		User friendsFromStorage = null;
 		try {
-			userFromStorage = userService.getUserStorage().get(userId);
-			friendsFromStorage = userService.getUserStorage().get(friendId);
+			userFromStorage = userService.getUser(userId);
+			friendsFromStorage = userService.getUser(friendId);
 		} catch (Exception e) {
 			Assertions.fail("Не удалось получить пользователя по ID");
 		}
@@ -135,9 +135,9 @@ public class UserServiceTests {
 		User user2 = User.builder().login("user2").build();
 		User commonFriend = User.builder().login("commonFriend").build();
 		try {
-			user1 = userService.getUserStorage().add(user1);
-			user2 = userService.getUserStorage().add(user2);
-			commonFriend = userService.getUserStorage().add(commonFriend);
+			user1 = userService.addUser(user1);
+			user2 = userService.addUser(user2);
+			commonFriend = userService.addUser(commonFriend);
 			userService.addFriend(user1.getId(), commonFriend.getId());
 			userService.addFriend(user2.getId(), commonFriend.getId());
 		} catch (Exception e) {

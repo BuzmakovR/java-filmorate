@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,13 +11,32 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
-@Getter
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
 	@Autowired
 	private final UserStorage userStorage;
+
+	public Collection<User> getUsers() {
+		return userStorage.getAll();
+	}
+
+	public User getUser(final Long userId) {
+		return userStorage.get(userId);
+	}
+
+	public User addUser(User user) {
+		return userStorage.add(user);
+	}
+
+	public User updateUser(User newUser) {
+		return userStorage.update(newUser);
+	}
+
+	public User deleteUser(final Long userId) {
+		return userStorage.delete(userId);
+	}
 
 	public Collection<User> getFriends(Long userId) {
 		User user = userStorage.get(userId);

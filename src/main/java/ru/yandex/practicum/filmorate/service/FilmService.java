@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
-@Getter
 public class FilmService {
 
 	@Autowired
@@ -24,6 +22,26 @@ public class FilmService {
 
 	@Autowired
 	private final UserStorage userStorage;
+
+	public Collection<Film> getFilms() {
+		return filmStorage.getAll();
+	}
+
+	public Film getFilm(final Long filmId) {
+		return filmStorage.get(filmId);
+	}
+
+	public Film addFilm(Film user) {
+		return filmStorage.add(user);
+	}
+
+	public Film updateFilm(Film newFilm) {
+		return filmStorage.update(newFilm);
+	}
+
+	public Film deleteFilm(final Long filmId) {
+		return filmStorage.delete(filmId);
+	}
 
 	public void addLike(Long filmId, Long userId) {
 		Film film = filmStorage.get(filmId);
