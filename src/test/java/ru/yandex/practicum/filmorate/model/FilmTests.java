@@ -12,9 +12,16 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class FilmTest {
+public class FilmTests {
+
+	@Test
+	void initFilm() {
+		Film film = Film.builder().build();
+		assertNotNull(film.getUserLikes(), "Поле userLikes не инициализируется при инициализации film");
+	}
 
 	@Test
 	void filmReleaseDateValidate() {

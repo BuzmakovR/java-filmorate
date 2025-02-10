@@ -1,74 +1,98 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 @Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-	private final HashMap<Long, User> users = new HashMap<>();
 
+	@Autowired
+	private final UserService userService;
+
+	//region USER
 	@GetMapping
 	public Collection<User> findAll() {
 		log.info("Запрос на получение пользователей");
+
+		Collection<User> users = userService.getUsers();
+
 		log.debug("Список пользователей: {}", users);
-		return users.values();
+
+		return users;
 	}
 
-	@PostMapping
-	public User create(@Valid @RequestBody User user) {
-		log.info("Запрос на создание пользователя");
-		log.debug(user.toString());
+	@GetMapping("/{id}")
+	public User get(@PathVariable("id") long id) {
+		log.info("Запрос на получение пользователя с ID: {}", id);
 
-		if (user.getName() == null || user.getName().isBlank()) {
-			log.info("При создании имя не указано. В качестве значения указывается логин");
-			user.setName(user.getLogin());
-		}
-		user.validate();
-
-		user.setId(getNextId());
-		users.put(user.getId(), user);
-
-		log.info("Пользователь создан");
-		log.debug(user.toString());
+		User user = userService.getUser(id);
+		log.debug("Полученный пользователь: {}", user);
 
 		return user;
 	}
 
+	@PostMapping
+	@ResponseStatus(HttpStatus.CREATED)
+	public User create(@Valid @RequestBody User user) {
+		log.info("Запрос на создание пользователя");
+		log.debug(user.toString());
+
+		User createdUser = userService.addUser(user);
+
+		log.info("Пользователь создан");
+		log.debug(createdUser.toString());
+
+		return createdUser;
+	}
+
 	@PutMapping
-	public User update(@RequestBody User newUser) {
+	public User update(@Valid @RequestBody User newUser) {
 		log.info("Запрос на обновление пользователя");
 
-		if (newUser.getId() == null) {
-			log.error("При обновлении пользователя Id не указан");
-			throw new ValidationException("Id пользователя должен быть указан");
-		}
-		if (users.containsKey(newUser.getId())) {
-			if (newUser.getName() == null || newUser.getName().isBlank()) {
-				log.info("При обновлении имя не указано. В качестве значения указывается логин");
-				newUser.setName(newUser.getLogin());
-			}
-			users.put(newUser.getId(), newUser);
+		User updatedUser = userService.updateUser(newUser);
 
-			log.info("Пользователь обновлен");
-			log.debug(newUser.toString());
+		log.info("Пользователь обновлен");
+		log.debug(newUser.toString());
 
-			return newUser;
-		}
-		throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
+		return updatedUser;
 	}
 
-	private long getNextId() {
-		long currentMaxId = users.values().stream().mapToLong(User::getId).max().orElse(0);
-		return ++currentMaxId;
+	@DeleteMapping("/{id}")
+	public User delete(@PathVariable("id") long userId) {
+		return userService.deleteUser(userId);
+	}
+	//endregion
+
+	//region USER-FRIENDS
+	@GetMapping("/{id}/friends")
+	public Collection<User> friends(@PathVariable("id") long userId) {
+		return userService.getFriends(userId);
 	}
 
+	@GetMapping("/{id}/friends/common/{otherId}")
+	public Collection<User> commonFriends(@PathVariable("id") long userId, @PathVariable("otherId") long otherId) {
+		return userService.getCommonFriends(userId, otherId);
+	}
+
+	@PutMapping("/{id}/friends/{friendId}")
+	public void addFriend(@PathVariable("id") long userId, @PathVariable("friendId") long friendId) {
+		userService.addFriend(userId, friendId);
+	}
+
+	@DeleteMapping("/{id}/friends/{friendId}")
+	public void deleteFriend(@PathVariable("id") long userId, @PathVariable("friendId") long friendId) {
+		userService.deleteFriend(userId, friendId);
+	}
+	//endregion
 }
