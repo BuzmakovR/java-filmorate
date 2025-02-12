@@ -17,7 +17,7 @@ INSERT INTO films (name,
                    description,
                    release_date,
                    duration,
-                   mpa_rating)
+                   mpa_rating_id)
 VALUES ($1, $2, $3, $4, $5);
 
 -- Привязка фильма к жанру
@@ -34,8 +34,8 @@ SET name                = $1,
     description         = $2,
     release_date        = $3,
     duration            = $4,
-    mpa_rating          = $5
-WHERE id = $5;
+    mpa_rating_id       = $5
+WHERE id = $6;
 ```
 
 * Получение фильма по `id`:
