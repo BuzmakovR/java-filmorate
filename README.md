@@ -18,24 +18,33 @@ INSERT INTO films (name,
                    release_date,
                    duration,
                    mpa_rating_id)
-VALUES ($1, $2, $3, $4, $5);
+VALUES (?, ?, ?, ?, ?);
 
 -- Привязка фильма к жанру
 INSERT INTO films_genres (film_id, genre_id)
-VALUES ($1, $2);
+VALUES (?, ?);
 ```
 
 * Обновление фильма:
 
 ```SQL
+-- Обновление записи с самим фильмом
 UPDATE
     films
-SET name                = $1,
-    description         = $2,
-    release_date        = $3,
-    duration            = $4,
-    mpa_rating_id       = $5
-WHERE id = $6;
+SET name                = ?,
+    description         = ?,
+    release_date        = ?,
+    duration            = ?,
+    mpa_rating_id       = ?
+WHERE id = ?;
+
+-- Обновление жанров фильма
+DELETE FROM films_genres
+WHERE film_id = ?
+    AND genre_id = ?;
+
+INSERT INTO films_genres (film_id, genre_id)
+VALUES (?, ?);
 ```
 
 * Получение фильма по `id`:
@@ -55,7 +64,7 @@ SELECT f.id,
 FROM films f
 LEFT JOIN films_genres fg ON fg.film_id = f.id
 LEFT JOIN genres g ON g.id = fg.genre_id
-WHERE f.id = $1
+WHERE f.id = ?
 GROUP BY f.id;
 ```   
 
@@ -98,20 +107,20 @@ LEFT JOIN films_genres fg ON fg.film_id = f.id
 LEFT JOIN genres g ON g.id = fg.genre_id
 LEFT JOIN films_likes fl ON fl.film_id = f.id
 GROUP BY f.id
-ORDER BY like_count DESC LIMIT $1;
+ORDER BY like_count DESC LIMIT ?;
 ```
 
 * Добавление лайка фильму:
 ```SQL
 INSERT INTO films_likes (film_id, user_id)
-VALUES ($1, $2);
+VALUES (?, ?);
 ```
 
 * Удаление лайка с фильма:
 ```SQL
 DELETE FROM films_likes 
-WHERE film_id = $1
-    AND user_id = $2;
+WHERE film_id = ?
+    AND user_id = ?;
 ```
 </details>
 
@@ -125,7 +134,7 @@ INSERT INTO users (email,
                    login,
                    name,
                    birthday)
-VALUES ($1, $2, $3, $4)
+VALUES (?, ?, ?, ?)
 ```
 
 * Обновление пользователя:
@@ -133,11 +142,11 @@ VALUES ($1, $2, $3, $4)
 ```SQL
 UPDATE
     users
-SET email    = $1,
-    login    = $2,
-    name     = $3,
-    birthday = $4
-WHERE id = $5
+SET email    = ?,
+    login    = ?,
+    name     = ?,
+    birthday = ?
+WHERE id = ?
 ```
 
 * Получение пользователя `id`:
@@ -145,7 +154,7 @@ WHERE id = $5
 ```SQL
 SELECT *
 FROM users
-WHERE id = $1
+WHERE id = ?
 ```   
 
 * Получение всех пользователей:
@@ -162,7 +171,7 @@ SELECT u.*
 FROM users u
 JOIN friend_requests fr ON fr.friend_id = u.id
 WHERE fr.is_confirmed = true
-    AND fr.user_id = $1
+    AND fr.user_id = ?
 ``` 
 
 * Получение общих друзей с пользователем:
@@ -172,9 +181,9 @@ SELECT cu.*
 FROM friend_requests u1
 JOIN friend_requests u2 ON u1.friend_id = u2.friend_id
 JOIN users cu ON cu.id = u2.friend_id
-where u1.user_id = $1 
+where u1.user_id = ? 
 	AND u1.is_confirmed = true
-	AND u2.user_id = $2
+	AND u2.user_id = ?
 	AND u2.is_confirmed = true
 ``` 
 
@@ -184,7 +193,7 @@ where u1.user_id = $1
 INSERT INTO friend_requests (user_id,
             friend_id,
             is_confirmed)
-VALUES ($1, $2, false);
+VALUES (?, ?, false);
 ```
 
 * Принятие заявки на добавление в друзья пользователя:
@@ -192,16 +201,16 @@ VALUES ($1, $2, false);
 ```SQL
 UPDATE friend_requests
 SET is_confirmed = true
-WHERE user_id = $1
-    AND friend_id = $2;
+WHERE user_id = ?
+    AND friend_id = ?;
 ```
 
 * Удаление из друзей пользователя:
 
 ```SQL
 DELETE FROM friend_requests
-WHERE user_id = $1
-    AND friend_id = $2;
+WHERE user_id = ?
+    AND friend_id = ?;
 ```
 
 </details>
