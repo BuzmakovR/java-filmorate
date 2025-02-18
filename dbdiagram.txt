@@ -5,6 +5,10 @@ Table friend_requests {
   user_id bigint
   friend_id bigint
   is_confirmed boolean
+
+  indexes {
+    (user_id, friend_id) [pk]
+  }
 }
 
 Table users {
@@ -18,31 +22,39 @@ Table users {
 Table films {
   id bigint [primary key]
   name varchar(255)
-  description varchar(200)
+  description varchar(255)
   release_date date
   duration integer
-  mpa_rating_id integer
+  mpa_rating_id bigint
 }
 
 Table films_likes {
   film_id bigint
   user_id bigint
+
+  indexes {
+    (film_id, user_id) [pk]
+  }
 }
 
 Table mpa_ratings {
-  id integer [primary key]
+  id bigint [primary key]
   name varchar(50)
-  description varchar(255)
 }
 
 Table genres {
-  id integer [primary key]
+  id bigint [primary key]
   name varchar(255)
 }
 
+
 Table films_genres {
   film_id bigint
-  genre_id integer
+  genre_id bigint
+
+  indexes {
+    (film_id, genre_id) [pk]
+  }
 }
 
 Ref: films_likes.film_id > films.id
