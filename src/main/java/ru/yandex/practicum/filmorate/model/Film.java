@@ -3,7 +3,9 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
@@ -28,24 +30,13 @@ public class Film {
 	@Positive(message = "Продолжительность фильма должна быть положительным числом")
 	private Integer duration;
 
-	private final Set<Long> userLikes = new HashSet<>();
+	private MPARating mpa;
+
+	private final Set<Genre> genres = new HashSet<>();
 
 	public void validate() {
 		if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
 			throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
 		}
 	}
-
-	public Set<Long> getUserLikes() {
-		return Set.copyOf(userLikes);
-	}
-
-	public void addUserLike(final Long userId) {
-		userLikes.add(userId);
-	}
-
-	public void deleteUserLike(final Long userId) {
-		userLikes.remove(userId);
-	}
-
 }

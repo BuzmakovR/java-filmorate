@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FriendService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.Collection;
@@ -19,6 +20,9 @@ public class UserController {
 
 	@Autowired
 	private final UserService userService;
+
+	@Autowired
+	private final FriendService friendService;
 
 	//region USER
 	@GetMapping
@@ -77,22 +81,22 @@ public class UserController {
 	//region USER-FRIENDS
 	@GetMapping("/{id}/friends")
 	public Collection<User> friends(@PathVariable("id") long userId) {
-		return userService.getFriends(userId);
+		return friendService.getFriends(userId);
 	}
 
 	@GetMapping("/{id}/friends/common/{otherId}")
 	public Collection<User> commonFriends(@PathVariable("id") long userId, @PathVariable("otherId") long otherId) {
-		return userService.getCommonFriends(userId, otherId);
+		return friendService.getCommonFriends(userId, otherId);
 	}
 
 	@PutMapping("/{id}/friends/{friendId}")
 	public void addFriend(@PathVariable("id") long userId, @PathVariable("friendId") long friendId) {
-		userService.addFriend(userId, friendId);
+		friendService.addFriend(userId, friendId);
 	}
 
 	@DeleteMapping("/{id}/friends/{friendId}")
 	public void deleteFriend(@PathVariable("id") long userId, @PathVariable("friendId") long friendId) {
-		userService.deleteFriend(userId, friendId);
+		friendService.deleteFriend(userId, friendId);
 	}
 	//endregion
 }

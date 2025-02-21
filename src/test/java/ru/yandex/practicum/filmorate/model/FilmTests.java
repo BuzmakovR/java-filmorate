@@ -18,12 +18,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class FilmTests {
 
 	@Test
-	void initFilm() {
-		Film film = Film.builder().build();
-		assertNotNull(film.getUserLikes(), "Поле userLikes не инициализируется при инициализации film");
-	}
-
-	@Test
 	void filmReleaseDateValidate() {
 		Film film = Film.builder()
 				.releaseDate(LocalDate.of(1895, Month.DECEMBER, 28).minusDays(1))

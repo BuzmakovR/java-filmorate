@@ -17,12 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class UserTests {
 
 	@Test
-	void initUser() {
-		User user = User.builder().build();
-		assertNotNull(user.getFriendIds(), "Поле friendIds не инициализируется при инициализации user");
-	}
-
-	@Test
 	void userLoginLogin() {
 		User user = User.builder().build();
 		assertThrows(ValidationException.class, user::validate, "Валидация пользователя с пустым логином должна вернуть ошибку");
