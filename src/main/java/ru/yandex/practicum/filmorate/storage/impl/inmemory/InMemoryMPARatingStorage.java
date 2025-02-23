@@ -2,18 +2,21 @@ package ru.yandex.practicum.filmorate.storage.impl.inmemory;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MPARating;
 import ru.yandex.practicum.filmorate.storage.MPARatingStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Component("inMemoryMPARatingDbStorage")
-public class InMemoryMPARatingDbStorage implements MPARatingStorage {
+public class InMemoryMPARatingStorage implements MPARatingStorage {
 
 	private final Map<Long, MPARating> ratings = new HashMap<>();
 
-	public InMemoryMPARatingDbStorage() {
+	public InMemoryMPARatingStorage() {
 		ratings.put(1L, MPARating.builder().id(1L).name("G").build());
 		ratings.put(2L, MPARating.builder().id(2L).name("PG").build());
 		ratings.put(3L, MPARating.builder().id(3L).name("PG-13").build());

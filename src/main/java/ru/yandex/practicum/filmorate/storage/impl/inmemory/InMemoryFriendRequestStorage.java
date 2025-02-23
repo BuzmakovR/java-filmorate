@@ -5,7 +5,11 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FriendRequest;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.Optional;
 
 @Component("inMemoryFriendRequestStorage")
 @RequiredArgsConstructor

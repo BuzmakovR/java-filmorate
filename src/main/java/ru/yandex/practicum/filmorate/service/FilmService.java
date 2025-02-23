@@ -5,11 +5,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -89,11 +87,6 @@ public class FilmService {
 			throw new ValidationException("Значение переданного параметра количество записей должен быть больше 0");
 		}
 		return filmStorage.getPopular(count);
-//				filmStorage.getAll()
-//				.stream()
-//				.sorted(Collections.reverseOrder(Comparator.comparing(film -> film.getUserLikes().size())))
-//				.limit(count)
-//				.toList();
 	}
 
 	private void validateFilm(Film film) {

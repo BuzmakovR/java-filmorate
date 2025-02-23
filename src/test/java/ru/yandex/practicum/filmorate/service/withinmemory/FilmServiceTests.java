@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
 import ru.yandex.practicum.filmorate.storage.impl.inmemory.*;
-import ru.yandex.practicum.filmorate.storage.impl.repositories.FilmLikeDbStorage;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class FilmServiceTests {
 			InMemoryFilmLikeStorage filmLikeStorage = new InMemoryFilmLikeStorage();
 			FilmStorage filmStorage = new InMemoryFilmStorage(filmLikeStorage);
 			GenreStorage genreStorage = new InMemoryGenreStorage();
-			MPARatingStorage mpaRatingStorage = new InMemoryMPARatingDbStorage();
+			MPARatingStorage mpaRatingStorage = new InMemoryMPARatingStorage();
 			filmService = new FilmService(filmStorage,
 					filmLikeStorage,
 					userStorage,
@@ -74,7 +73,6 @@ public class FilmServiceTests {
 			Assertions.fail("Не удалось получить фильм по ID");
 		}
 		Assertions.assertNotNull(filmFromStorage, "Не удалось получить фильм по ID");
-//		Assertions.assertFalse(filmFromStorage.getUserLikes().isEmpty(), "Список лайков фильма пустой");
 	}
 
 	@Test
@@ -102,7 +100,6 @@ public class FilmServiceTests {
 			Assertions.fail("Не удалось получить фильм по ID");
 		}
 		Assertions.assertNotNull(filmFromStorage, "Не удалось получить фильм по ID");
-//		Assertions.assertFalse(filmFromStorage.getUserLikes().isEmpty(), "Список лайков фильма пустой");
 
 		Assertions.assertThrows(NotFoundException.class, () -> {
 			filmService.deleteLike(-1L, -1L);
@@ -121,7 +118,6 @@ public class FilmServiceTests {
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при удалении лайка к фильму");
 		}
-//		Assertions.assertTrue(filmFromStorage.getUserLikes().isEmpty(), "После удаления список лайков фильма не пустой");
 	}
 
 	@Test

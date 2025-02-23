@@ -8,9 +8,7 @@ import ru.yandex.practicum.filmorate.model.MPARating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Component
