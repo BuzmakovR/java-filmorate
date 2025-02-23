@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
 public class FilmService {
@@ -54,7 +56,7 @@ public class FilmService {
 	}
 
 	public Film addFilm(Film film) {
-		validateFilm(film);
+		prepareAndValidateFilm(film);
 		return filmStorage.add(film);
 	}
 
@@ -62,7 +64,7 @@ public class FilmService {
 		if (newFilm.getId() == null) {
 			throw new ValidationException("Id фильма должен быть указан");
 		}
-		validateFilm(newFilm);
+		prepareAndValidateFilm(newFilm);
 		return filmStorage.update(newFilm);
 	}
 
@@ -89,18 +91,15 @@ public class FilmService {
 		return filmStorage.getPopular(count);
 	}
 
-	private void validateFilm(Film film) {
-		film.validate();
-		Optional.ofNullable(film.getMpa())
-				.ifPresent(mpa -> mpaRatingStorage.get(mpa.getId()));
+	private void prepareAndValidateFilm(Film film) {
+		Optional.ofNullable(film.getMpa()).ifPresent(mpa -> film.setMpa(mpaRatingStorage.get(mpa.getId())));
 		Optional.ofNullable(film.getGenres())
 				.ifPresent(genres -> {
-					genres.forEach(
-							genre -> {
-								genreStorage.get(genre.getId());
-							}
-					);
+					ArrayList<Genre> inputGenre = new ArrayList<>(genres.stream().distinct().toList());
+					film.clearGenre();
+					inputGenre.forEach(genre -> film.addGenre(genreStorage.get(genre.getId())));
 				});
+		film.validate();
 	}
 
 }

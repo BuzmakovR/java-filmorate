@@ -42,7 +42,7 @@ public class FilmRowMapper implements RowMapper<Film> {
 
 		for (int i = 0; i < genreIds.size(); i++) {
 			if (i >= genreNames.size()) break;
-			film.getGenres().add(Genre.builder().id(Long.valueOf(genreIds.get(i)))
+			film.addGenre(Genre.builder().id(Long.valueOf(genreIds.get(i)))
 					.name(genreNames.get(i)).build());
 		}
 		return film;

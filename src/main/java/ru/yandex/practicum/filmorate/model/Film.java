@@ -5,13 +5,12 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Data
 @Builder
@@ -32,11 +31,23 @@ public class Film {
 
 	private MPARating mpa;
 
-	private final Set<Genre> genres = new HashSet<>();
+	private final Collection<Genre> genres = new ArrayList<>();
 
 	public void validate() {
 		if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
 			throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
 		}
+	}
+
+	public void addGenre(Genre genre) {
+		if (!genres.contains(genre)) genres.add(genre);
+	}
+
+	public void removeGenre(Genre genre) {
+		genres.remove(genre);
+	}
+
+	public void clearGenre() {
+		genres.clear();
 	}
 }
