@@ -1,24 +1,21 @@
-package ru.yandex.practicum.filmorate.service.withinmemory;
+package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.service.GenreService;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.storage.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryGenreStorage;
 
-public class GenreServiceTests {
+public abstract class GenreServiceTests {
 
-	GenreService genreService;
+	@Autowired
+	protected GenreStorage genreStorage;
+
+	@Autowired
+	protected GenreService genreService;
 
 	@BeforeEach
-	void initStorage() {
-		try {
-			GenreStorage genreStorage = new InMemoryGenreStorage();
-			genreService = new GenreService(genreStorage);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
+	protected void initStorage() {
 	}
 
 	@Test

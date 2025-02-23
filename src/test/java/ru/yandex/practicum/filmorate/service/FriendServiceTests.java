@@ -1,34 +1,31 @@
-package ru.yandex.practicum.filmorate.service.withinmemory;
+package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FriendService;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFriendRequestStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryUserStorage;
 
 import java.util.Collection;
 import java.util.List;
 
-public class FriendServiceTests {
+public abstract class FriendServiceTests {
 
-	private FriendService friendService;
-	private UserStorage userStorage;
+	@Autowired
+	protected FriendService friendService;
+
+	@Autowired
+	protected UserStorage userStorage;
+
+	@Autowired
+	protected FriendRequestStorage friendRequestStorage;
 
 	@BeforeEach
-	void initStorage() {
-		try {
-			userStorage = new InMemoryUserStorage();
-			FriendRequestStorage friendRequestStorage = new InMemoryFriendRequestStorage();
-			friendService = new FriendService(friendRequestStorage, userStorage);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
+	protected void initStorage() {
 	}
 
 	@Test
@@ -37,8 +34,8 @@ public class FriendServiceTests {
 			friendService.addFriend(999L, 1000L);
 		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
 
-		User user = User.builder().login("user").build();
-		User friend = User.builder().login("friend").build();
+		User user = User.builder().login("friend-service-add-user").email("email@email.ru").build();
+		User friend = User.builder().login("friend-service-add-friend").email("email@email.ru").build();
 		try {
 			user = userStorage.add(user);
 			friend = userStorage.add(friend);
@@ -92,8 +89,8 @@ public class FriendServiceTests {
 			friendService.deleteFriend(999L, 1000L);
 		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
 
-		User user = User.builder().login("user").build();
-		User friend = User.builder().login("friend").build();
+		User user = User.builder().login("friend-service-delete-user").email("email@email.ru").build();
+		User friend = User.builder().login("friend-service-delete-friend").email("email@email.ru").build();
 		try {
 			user = userStorage.add(user);
 			friend = userStorage.add(friend);
@@ -149,9 +146,9 @@ public class FriendServiceTests {
 			friendService.getCommonFriends(999L, 1000L);
 		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
 
-		User user1 = User.builder().login("user1").build();
-		User user2 = User.builder().login("user2").build();
-		User commonFriend = User.builder().login("commonFriend").build();
+		User user1 = User.builder().login("friend-service-getcommon-user1").email("email@email.ru").build();
+		User user2 = User.builder().login("friend-service-getcommon-user2").email("email@email.ru").build();
+		User commonFriend = User.builder().login("friend-service-getcommon-commonFriend").email("email@email.ru").build();
 		try {
 			user1 = userStorage.add(user1);
 			user2 = userStorage.add(user2);

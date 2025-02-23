@@ -1,39 +1,38 @@
-package ru.yandex.practicum.filmorate.service.withinmemory;
+package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.*;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.*;
 
 import java.util.List;
 
-public class FilmServiceTests {
+public abstract class FilmServiceTests {
 
-	private FilmService filmService;
-	private UserStorage userStorage;
+	@Autowired
+	protected FilmService filmService;
+
+	@Autowired
+	protected FilmStorage filmStorage;
+
+	@Autowired
+	protected UserStorage userStorage;
+
+	@Autowired
+	protected FilmLikeStorage filmLikeStorage;
+
+	@Autowired
+	protected GenreStorage genreStorage;
+
+	@Autowired
+	protected MPARatingStorage mpaRatingStorage;
 
 	@BeforeEach
-	void initStorage() {
-		try {
-			userStorage = new InMemoryUserStorage();
-			InMemoryFilmLikeStorage filmLikeStorage = new InMemoryFilmLikeStorage();
-			FilmStorage filmStorage = new InMemoryFilmStorage(filmLikeStorage);
-			GenreStorage genreStorage = new InMemoryGenreStorage();
-			MPARatingStorage mpaRatingStorage = new InMemoryMPARatingStorage();
-			filmService = new FilmService(filmStorage,
-					filmLikeStorage,
-					userStorage,
-					genreStorage,
-					mpaRatingStorage
-			);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
+	protected void initStorage() {
 	}
 
 	@Test
@@ -42,7 +41,7 @@ public class FilmServiceTests {
 			filmService.addLike(-1L, -1L);
 		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
 
-		User user = User.builder().login("user").build();
+		User user = User.builder().login("film-service-addlike-user").email("email@email.ru").build();
 		Film film = Film.builder().name("film").build();
 		try {
 			user = userStorage.add(user);
@@ -77,7 +76,7 @@ public class FilmServiceTests {
 
 	@Test
 	void deleteLike() {
-		User user = User.builder().login("user").build();
+		User user = User.builder().login("film-service-deletelike-user").email("email@email.ru").build();
 		Film film = Film.builder().name("film").build();
 		try {
 			user = userStorage.add(user);
@@ -122,8 +121,11 @@ public class FilmServiceTests {
 
 	@Test
 	void getPopularFilms() {
-		User user1 = User.builder().login("user-1").build();
-		User user2 = User.builder().login("user-2").build();
+		filmService.getFilms()
+				.forEach(film -> filmStorage.delete(film.getId()));
+
+		User user1 = User.builder().login("film-service-getpopular-user-1").email("email@email.ru").build();
+		User user2 = User.builder().login("film-service-getpopular-user-2").email("email@email.ru").build();
 		Film film1 = Film.builder().name("film-1").build();
 		Film film2 = Film.builder().name("film-2").build();
 		Film film3 = Film.builder().name("film-3").build();

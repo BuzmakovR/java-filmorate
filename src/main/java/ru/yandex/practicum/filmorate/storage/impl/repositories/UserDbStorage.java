@@ -17,7 +17,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 	private static final String FIND_ALL_QUERY = "SELECT * FROM users";
 	private static final String FIND_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
 	private static final String INSERT_QUERY = "INSERT INTO users(email, login, name, birthday) VALUES (?, ?, ?, ?)";
-	private static final String UPDATE_QUERY = "UPDATE users SET email = ?, name = ?, birthday = ? WHERE id = ?";
+	private static final String UPDATE_QUERY = "UPDATE users SET login = ?, email = ?, name = ?, birthday = ? WHERE id = ?";
 	private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
 
 	public UserDbStorage(JdbcTemplate jdbc, RowMapper<User> mapper) {
@@ -53,6 +53,7 @@ public class UserDbStorage extends BaseRepository<User> implements UserStorage {
 	public User update(User newUser) {
 		update(
 				UPDATE_QUERY,
+				newUser.getLogin(),
 				newUser.getEmail(),
 				newUser.getName(),
 				newUser.getBirthday(),

@@ -1,35 +1,33 @@
-package ru.yandex.practicum.filmorate.service.withinmemory;
+package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryUserStorage;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserServiceTests {
+public abstract class UserServiceTests {
 
-	private UserService userService;
+	@Autowired
+	protected UserService userService;
+
+	@Autowired
+	protected UserStorage userStorage;
 
 	@BeforeEach
-	void initStorage() {
-		try {
-			UserStorage userStorage = new InMemoryUserStorage();
-			userService = new UserService(userStorage);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
+	protected void initStorage() {
 	}
 
 	@Test
 	void addUser() {
 		User user1 = User.builder()
-				.login("user-1")
+				.login("user-service-add-user-1")
+				.email("email@email.ru")
 				.build();
 
 		User userFromService = null;
@@ -45,7 +43,8 @@ public class UserServiceTests {
 	@Test
 	void updateUser() {
 		User user = User.builder()
-				.login("user-1")
+				.login("user-service-update-user-1")
+				.email("email@email.ru")
 				.build();
 		try {
 			userService.addUser(user);
@@ -54,7 +53,8 @@ public class UserServiceTests {
 		}
 
 		User userUpdate = User.builder()
-				.login("user-1-updated")
+				.login("user-service-update-user-1-updated")
+				.email("email@email.ru")
 				.build();
 		userUpdate.setId(user.getId());
 
@@ -74,7 +74,8 @@ public class UserServiceTests {
 		Assertions.assertEquals(userUpdate, userFromStorage, "Полученный пользователя не соответствует обновленному");
 
 		final User user2Update = User.builder()
-				.login("user-2-not-exists")
+				.login("user-service-update-user-2-not-exists")
+				.email("email@email.ru")
 				.build();
 		assertThrows(ValidationException.class, () -> {
 			userService.updateUser(user2Update);
@@ -89,7 +90,8 @@ public class UserServiceTests {
 	@Test
 	void deleteUsers() {
 		User user = User.builder()
-				.login("user-1")
+				.login("user-service-delete-user-1")
+				.email("email@email.ru")
 				.build();
 		try {
 			user = userService.addUser(user);

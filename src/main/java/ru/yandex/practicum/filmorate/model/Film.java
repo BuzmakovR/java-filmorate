@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
@@ -14,6 +15,7 @@ import java.util.Collection;
 
 @Data
 @Builder
+@EqualsAndHashCode(of = {"name", "releaseDate", "mpa"})
 public class Film {
 
 	private Long id;

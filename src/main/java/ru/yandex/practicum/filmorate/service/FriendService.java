@@ -13,11 +13,11 @@ import java.util.Objects;
 @Service
 public class FriendService {
 
-	@Qualifier("userDbStorage")
-	private final UserStorage userStorage;
-
 	@Qualifier("friendRequestDbStorage")
 	private final FriendRequestStorage friendRequestStorage;
+
+	@Qualifier("userDbStorage")
+	private final UserStorage userStorage;
 
 	public FriendService(@Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
 		this.friendRequestStorage = friendRequestStorage;

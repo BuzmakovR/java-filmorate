@@ -1,24 +1,21 @@
-package ru.yandex.practicum.filmorate.service.withinmemory;
+package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.service.MPARatingService;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.storage.MPARatingStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryMPARatingStorage;
 
-public class MPARatingServiceTests {
+public abstract class MPARatingServiceTests {
 
-	MPARatingService mpaRatingService;
+	@Autowired
+	protected MPARatingService mpaRatingService;
+
+	@Autowired
+	protected MPARatingStorage mpaRatingStorage;
 
 	@BeforeEach
-	void initStorage() {
-		try {
-			MPARatingStorage mpaRatingStorage = new InMemoryMPARatingStorage();
-			mpaRatingService = new MPARatingService(mpaRatingStorage);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
+	protected void initStorage() {
 	}
 
 	@Test

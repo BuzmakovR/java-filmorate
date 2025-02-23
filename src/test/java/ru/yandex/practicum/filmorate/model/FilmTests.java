@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class FilmTests {

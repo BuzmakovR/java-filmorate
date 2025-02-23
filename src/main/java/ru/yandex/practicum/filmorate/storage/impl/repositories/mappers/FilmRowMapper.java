@@ -10,22 +10,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
 
 	@Override
 	public Film mapRow(ResultSet rs, int rowNum) throws SQLException {
+		Function<Integer, Integer> getDuration = d -> d > 0 ? d : null;
+
 		Film film = Film.builder()
 				.id(rs.getLong("id"))
 				.name(rs.getString("name"))
 				.description(rs.getString("description"))
-				.duration(rs.getInt("duration"))
+				.duration(getDuration.apply(rs.getInt("duration")))
 				.build();
 
-		Long mpaId = rs.getLong("mpa_rating_id");
+		long mpaId = rs.getLong("mpa_rating_id");
 		String mpaName = rs.getString("mpa_rating_name");
-		if (!mpaName.isBlank()) {
+		if (mpaId > 0 && mpaName != null && !mpaName.isBlank()) {
 			film.setMpa(MPARating.builder().id(mpaId).name(mpaName).build());
 		}
 
