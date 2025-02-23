@@ -41,13 +41,13 @@ public class ErrorHandler {
 
 	@ExceptionHandler
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	public ErrorResponse DbErrorExceptionException(final DbErrorException e) {
+	public ErrorResponse dbErrorExceptionException(final DbErrorException e) {
 		return new ErrorResponse("Произошла непредвиденная ошибка");
 	}
 
 	@ExceptionHandler
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-	public ErrorResponse InternalServerException(final Throwable e) {
+	public ErrorResponse internalServerException(final Throwable e) {
 		return new ErrorResponse("Произошла непредвиденная ошибка");
 	}
 }
