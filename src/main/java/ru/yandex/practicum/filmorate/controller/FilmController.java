@@ -52,7 +52,7 @@ public class FilmController {
 		Film createdFilm = filmService.addFilm(film);
 
 		log.info("Фильм создан");
-		log.debug(film.toString());
+		log.debug(createdFilm.toString());
 
 		return film;
 	}

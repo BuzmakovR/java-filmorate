@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFilmLikeStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFilmStorage;
 
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class InMemoryFilmStorageTests {
 	@BeforeEach
 	void initStorage() {
 		try {
-			filmStorage = new InMemoryFilmStorage();
+			filmStorage = new InMemoryFilmStorage(new InMemoryFilmLikeStorage());
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}

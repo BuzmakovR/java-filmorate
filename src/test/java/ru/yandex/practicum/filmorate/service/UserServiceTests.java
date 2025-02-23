@@ -3,166 +3,106 @@ package ru.yandex.practicum.filmorate.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
 
-import java.util.List;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserServiceTests {
+public abstract class UserServiceTests {
 
-	private UserService userService;
+	@Autowired
+	protected UserService userService;
+
+	@Autowired
+	protected UserStorage userStorage;
 
 	@BeforeEach
-	void initStorage() {
-		try {
-			UserStorage userStorage = new InMemoryUserStorage();
-			userService = new UserService(userStorage);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
+	protected void initStorage() {
 	}
 
 	@Test
-	void addFried() {
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.addFriend(999L, 1000L);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
+	void addUser() {
+		User user1 = User.builder()
+				.login("user-service-add-user-1")
+				.email("email@email.ru")
+				.build();
 
-		User user = User.builder().login("user").build();
-		User friend = User.builder().login("friend").build();
-		try {
-			user = userService.addUser(user);
-			friend = userService.addUser(friend);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
-		final Long userId = user.getId();
-		final Long friendId = friend.getId();
-
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.addFriend(userId, 1000L);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.addFriend(999L, friendId);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-
-		Assertions.assertThrows(ValidationException.class, () -> {
-			userService.addFriend(userId, userId);
-		}, "Не получено исключение валидации переданных равных ID");
-		try {
-			userService.addFriend(userId, friendId);
-		} catch (Exception e) {
-			Assertions.fail("Получено исключение при добавлении в друзья");
-		}
-		User userFromStorage = null;
-		User friendsFromStorage = null;
-		try {
-			userFromStorage = userService.getUser(userId);
-			friendsFromStorage = userService.getUser(friendId);
-		} catch (Exception e) {
-			Assertions.fail("Не удалось получить пользователя по ID");
-		}
-
-		Assertions.assertNotNull(userFromStorage, "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(userFromStorage.getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertFalse(userFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя пустой");
-
-		Assertions.assertNotNull(friendsFromStorage, "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(friendsFromStorage.getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertFalse(friendsFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя пустой");
-	}
-
-	@Test
-	void deleteFried() {
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.deleteFriend(999L, 1000L);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-
-		User user = User.builder().login("user").build();
-		User friend = User.builder().login("friend").build();
-		try {
-			user = userService.addUser(user);
-			friend = userService.addUser(friend);
-			userService.addFriend(user.getId(), friend.getId());
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
-		final Long userId = user.getId();
-		final Long friendId = friend.getId();
-
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.deleteFriend(userId, 1000L);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.deleteFriend(999L, friendId);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-
-		Assertions.assertThrows(ValidationException.class, () -> {
-			userService.deleteFriend(userId, userId);
-		}, "Не получено исключение валидации переданных равных ID");
-		try {
-			userService.deleteFriend(userId, friendId);
-		} catch (Exception e) {
-			Assertions.fail("Получено исключение при удаление из друзей");
-		}
-		User userFromStorage = null;
-		User friendsFromStorage = null;
-		try {
-			userFromStorage = userService.getUser(userId);
-			friendsFromStorage = userService.getUser(friendId);
-		} catch (Exception e) {
-			Assertions.fail("Не удалось получить пользователя по ID");
-		}
-		Assertions.assertNotNull(userFromStorage, "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(userFromStorage.getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertTrue(userFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя не пустой");
-
-		Assertions.assertNotNull(friendsFromStorage, "Не удалось получить пользователя по ID");
-		Assertions.assertNotNull(friendsFromStorage.getFriendIds(), "Список друзей пользователя равен null");
-		Assertions.assertTrue(friendsFromStorage.getFriendIds().isEmpty(), "Список друзей пользователя не пустой");
-	}
-
-	@Test
-	void getCommonFriends() {
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.getCommonFriends(999L, 1000L);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-
-		User user1 = User.builder().login("user1").build();
-		User user2 = User.builder().login("user2").build();
-		User commonFriend = User.builder().login("commonFriend").build();
+		User userFromService = null;
 		try {
 			user1 = userService.addUser(user1);
-			user2 = userService.addUser(user2);
-			commonFriend = userService.addUser(commonFriend);
-			userService.addFriend(user1.getId(), commonFriend.getId());
-			userService.addFriend(user2.getId(), commonFriend.getId());
+			userFromService = userService.getUser(user1.getId());
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
-		final Long user1Id = user1.getId();
-		final Long user2Id = user2.getId();
+		Assertions.assertEquals(user1, userFromService, "Полученный пользователь не соответствует добавленному");
+	}
 
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.getCommonFriends(user1Id, 1000L);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			userService.getCommonFriends(999L, user2Id);
-		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
-		Assertions.assertThrows(ValidationException.class, () -> {
-			userService.getCommonFriends(user1Id, user1Id);
-		}, "Не получено исключение валидации переданных равных ID");
-
-		List<User> commonFriends = List.of();
+	@Test
+	void updateUser() {
+		User user = User.builder()
+				.login("user-service-update-user-1")
+				.email("email@email.ru")
+				.build();
 		try {
-			commonFriends = userService.getCommonFriends(user1Id, user2Id).stream().toList();
+			userService.addUser(user);
 		} catch (Exception e) {
-			Assertions.fail("Получено исключение при получении общих друзей");
+			Assertions.fail(e.getMessage());
 		}
-		Assertions.assertEquals(1, commonFriends.size(), "Не удалось получить общего друга");
-		Assertions.assertEquals(commonFriend, commonFriends.getFirst(), "Значение полученное в качестве общего друга неверное");
+
+		User userUpdate = User.builder()
+				.login("user-service-update-user-1-updated")
+				.email("email@email.ru")
+				.build();
+		userUpdate.setId(user.getId());
+
+		try {
+			userService.updateUser(userUpdate);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+
+		User userFromStorage = null;
+		try {
+			userFromStorage = userService.getUser(userUpdate.getId());
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить пользователя по ID");
+		}
+		Assertions.assertNotNull(userFromStorage, "Не удалось получить пользователя по ID");
+		Assertions.assertEquals(userUpdate, userFromStorage, "Полученный пользователя не соответствует обновленному");
+
+		final User user2Update = User.builder()
+				.login("user-service-update-user-2-not-exists")
+				.email("email@email.ru")
+				.build();
+		assertThrows(ValidationException.class, () -> {
+			userService.updateUser(user2Update);
+		}, "Не получено исключение валидации при обновлении без ID");
+
+		user2Update.setId(999L);
+		assertThrows(NotFoundException.class, () -> {
+			userService.updateUser(user2Update);
+		}, "Не получено исключение NotFoundException");
+	}
+
+	@Test
+	void deleteUsers() {
+		User user = User.builder()
+				.login("user-service-delete-user-1")
+				.email("email@email.ru")
+				.build();
+		try {
+			user = userService.addUser(user);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		final Long userId = user.getId();
+		userService.deleteUser(userId);
+
+		assertThrows(NotFoundException.class, () -> {
+			userService.getUser(userId);
+		}, "Не удалось удалить пользователя");
 	}
 }

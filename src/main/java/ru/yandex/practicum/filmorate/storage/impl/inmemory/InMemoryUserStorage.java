@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.impl;
+package ru.yandex.practicum.filmorate.storage.impl.inmemory;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@Component
+@Component("inMemoryUserStorage")
 public class InMemoryUserStorage implements UserStorage {
 
 	private final Map<Long, User> users = new HashMap<>();
@@ -32,13 +32,8 @@ public class InMemoryUserStorage implements UserStorage {
 
 	@Override
 	public User add(User user) {
-		if (user.getName() == null || user.getName().isBlank()) {
-			user.setName(user.getLogin());
-		}
-		user.validate();
 		user.setId(getNextId());
 		users.put(user.getId(), user);
-
 		return user;
 	}
 
@@ -47,15 +42,9 @@ public class InMemoryUserStorage implements UserStorage {
 		if (newUser.getId() == null) {
 			throw new ValidationException("Id пользователя должен быть указан");
 		}
-
-		User currentUser = get(newUser.getId());
-		if (newUser.getName() == null || newUser.getName().isBlank()) {
-			newUser.setName(newUser.getLogin());
+		if (!users.containsKey(newUser.getId())) {
+			throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
 		}
-		for (Long userId : currentUser.getFriendIds()) {
-			newUser.addFriend(userId);
-		}
-
 		users.put(newUser.getId(), newUser);
 		return newUser;
 	}
@@ -63,18 +52,7 @@ public class InMemoryUserStorage implements UserStorage {
 	@Override
 	public User delete(Long id) {
 		Optional<User> optionalUser = Optional.ofNullable(users.remove(id));
-		if (optionalUser.isPresent()) {
-			User user = optionalUser.get();
-			for (Long friendId : optionalUser.get().getFriendIds()) {
-				Optional<User> optionalFriend = Optional.ofNullable(users.get(friendId));
-				optionalFriend.ifPresent(friend -> {
-					friend.deleteFriend(user.getId());
-					users.put(friend.getId(), friend);
-				});
-			}
-			return user;
-		}
-		return null;
+		return optionalUser.orElse(null);
 	}
 
 	private long getNextId() {
