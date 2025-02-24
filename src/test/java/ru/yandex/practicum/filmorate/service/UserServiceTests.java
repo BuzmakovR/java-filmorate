@@ -22,7 +22,7 @@ public abstract class UserServiceTests {
 
 	@Autowired
 	protected UserStorage userStorage;
-	
+
 	@Autowired
 	protected FriendRequestStorage friendRequestStorage;
 
