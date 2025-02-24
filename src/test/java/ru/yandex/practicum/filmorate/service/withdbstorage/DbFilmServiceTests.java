@@ -17,7 +17,7 @@ import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.*;
 		UserDbStorage.class, UserRowMapper.class,
 		FilmLikeDbStorage.class, FilmLikeRowMapper.class,
 		GenreDbStorage.class, GenreRowMapper.class,
-		MPARatingDbStorage.class, MPARatingRowMapper.class
+		MpaRatingDbStorage.class, MpaRatingRowMapper.class
 })
 public class DbFilmServiceTests extends FilmServiceTests {
 }

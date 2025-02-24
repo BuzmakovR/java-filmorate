@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Builder
 @EqualsAndHashCode(of = {"id"})
-public class MPARating {
+public class MpaRating {
 
 	private Long id;
 

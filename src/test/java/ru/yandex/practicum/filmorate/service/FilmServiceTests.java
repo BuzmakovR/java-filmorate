@@ -29,7 +29,7 @@ public abstract class FilmServiceTests {
 	protected GenreStorage genreStorage;
 
 	@Autowired
-	protected MPARatingStorage mpaRatingStorage;
+	protected MpaRatingStorage mpaRatingStorage;
 
 	@BeforeEach
 	protected void initStorage() {

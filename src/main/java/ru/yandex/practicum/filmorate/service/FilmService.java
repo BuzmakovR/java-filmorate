@@ -33,13 +33,13 @@ public class FilmService {
 
 	@Autowired
 	@Qualifier("mpaRatingDbStorage")
-	private final MPARatingStorage mpaRatingStorage;
+	private final MpaRatingStorage mpaRatingStorage;
 
 	public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
 					   @Qualifier("filmLikeDbStorage") FilmLikeStorage filmLikeStorage,
 					   @Qualifier("userDbStorage") UserStorage userStorage,
 					   @Qualifier("genreDbStorage") GenreStorage genreStorage,
-					   @Qualifier("mpaRatingDbStorage") MPARatingStorage mpaRatingStorage) {
+					   @Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage) {
 		this.filmStorage = filmStorage;
 		this.filmLikeStorage = filmLikeStorage;
 		this.userStorage = userStorage;

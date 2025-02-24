@@ -4,15 +4,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.storage.MPARatingStorage;
+import ru.yandex.practicum.filmorate.storage.MpaRatingStorage;
 
-public abstract class MPARatingServiceTests {
-
-	@Autowired
-	protected MPARatingService mpaRatingService;
+public abstract class MpaRatingServiceTests {
 
 	@Autowired
-	protected MPARatingStorage mpaRatingStorage;
+	protected MpaRatingService mpaRatingService;
+
+	@Autowired
+	protected MpaRatingStorage mpaRatingStorage;
 
 	@BeforeEach
 	protected void initStorage() {

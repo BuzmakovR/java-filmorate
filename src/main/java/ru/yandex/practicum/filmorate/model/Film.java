@@ -31,7 +31,7 @@ public class Film {
 	@Positive(message = "Продолжительность фильма должна быть положительным числом")
 	private Integer duration;
 
-	private MPARating mpa;
+	private MpaRating mpa;
 
 	private final Collection<Genre> genres = new ArrayList<>();
 
@@ -42,7 +42,9 @@ public class Film {
 	}
 
 	public void addGenre(Genre genre) {
-		if (!genres.contains(genre)) genres.add(genre);
+		if (!genres.contains(genre)) {
+			genres.add(genre);
+		}
 	}
 
 	public void removeGenre(Genre genre) {

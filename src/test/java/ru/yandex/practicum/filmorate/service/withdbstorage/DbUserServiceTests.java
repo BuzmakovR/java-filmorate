@@ -7,13 +7,16 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.context.annotation.Import;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceTests;
+import ru.yandex.practicum.filmorate.storage.impl.repositories.FriendRequestDbStorage;
 import ru.yandex.practicum.filmorate.storage.impl.repositories.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.FriendRequestRowMapper;
 import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.UserRowMapper;
 
 @JdbcTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-@Import({UserService.class, UserDbStorage.class, UserRowMapper.class})
+@Import({UserService.class, UserDbStorage.class, UserRowMapper.class,
+		FriendRequestDbStorage.class, FriendRequestRowMapper.class})
 public class DbUserServiceTests extends UserServiceTests {
 
 }

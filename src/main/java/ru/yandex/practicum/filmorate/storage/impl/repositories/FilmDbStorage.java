@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.MPARating;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
@@ -79,7 +79,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 				film.getReleaseDate(),
 				film.getDuration(),
 				Optional.ofNullable(film.getMpa())
-						.map(MPARating::getId)
+						.map(MpaRating::getId)
 						.orElse(null)
 		);
 		film.setId(id);
@@ -103,7 +103,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 				newFilm.getReleaseDate(),
 				newFilm.getDuration(),
 				Optional.ofNullable(newFilm.getMpa())
-						.map(MPARating::getId)
+						.map(MpaRating::getId)
 						.orElse(null),
 				newFilm.getId()
 		);

@@ -16,7 +16,7 @@ public class InMemoryFilmServiceTests extends FilmServiceTests {
 			filmLikeStorage = new InMemoryFilmLikeStorage();
 			filmStorage = new InMemoryFilmStorage((InMemoryFilmLikeStorage) filmLikeStorage);
 			genreStorage = new InMemoryGenreStorage();
-			mpaRatingStorage = new InMemoryMPARatingStorage();
+			mpaRatingStorage = new InMemoryMpaRatingStorage();
 			filmService = new FilmService(filmStorage,
 					filmLikeStorage,
 					userStorage,

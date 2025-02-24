@@ -4,7 +4,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.MPARating;
+import ru.yandex.practicum.filmorate.model.MpaRating;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +29,7 @@ public class FilmRowMapper implements RowMapper<Film> {
 		long mpaId = rs.getLong("mpa_rating_id");
 		String mpaName = rs.getString("mpa_rating_name");
 		if (mpaId > 0 && mpaName != null && !mpaName.isBlank()) {
-			film.setMpa(MPARating.builder().id(mpaId).name(mpaName).build());
+			film.setMpa(MpaRating.builder().id(mpaId).name(mpaName).build());
 		}
 
 		Optional.ofNullable(rs.getDate("release_date"))

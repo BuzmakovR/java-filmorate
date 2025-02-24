@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.filmorate.model.MPARating;
-import ru.yandex.practicum.filmorate.service.MPARatingService;
+import ru.yandex.practicum.filmorate.model.MpaRating;
+import ru.yandex.practicum.filmorate.service.MpaRatingService;
 
 import java.util.Collection;
 
@@ -16,16 +16,16 @@ import java.util.Collection;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/mpa")
-public class MPARatingController {
+public class MpaRatingController {
 
 	@Autowired
-	private final MPARatingService mpaRatingService;
+	private final MpaRatingService mpaRatingService;
 
 	@GetMapping
-	public Collection<MPARating> findAll() {
+	public Collection<MpaRating> findAll() {
 		log.info("Запрос на получение жанров");
 
-		Collection<MPARating> rating = mpaRatingService.getRatings();
+		Collection<MpaRating> rating = mpaRatingService.getRatings();
 
 		log.debug("Список рейтингов: {}", rating);
 
@@ -33,10 +33,10 @@ public class MPARatingController {
 	}
 
 	@GetMapping("/{id}")
-	public MPARating get(@PathVariable("id") long id) {
+	public MpaRating get(@PathVariable("id") long id) {
 		log.info("Запрос на получение рейтинга с ID: {}", id);
 
-		MPARating rating = mpaRatingService.getRating(id);
+		MpaRating rating = mpaRatingService.getRating(id);
 		log.debug("Полученный рейтинг: {}", rating);
 
 		return rating;
