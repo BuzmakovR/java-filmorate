@@ -3,16 +3,19 @@ package ru.yandex.practicum.filmorate.model;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Data
 @Builder
+@EqualsAndHashCode(of = {"name", "releaseDate", "mpa"})
 public class Film {
 
 	private Long id;
@@ -28,7 +31,9 @@ public class Film {
 	@Positive(message = "Продолжительность фильма должна быть положительным числом")
 	private Integer duration;
 
-	private final Set<Long> userLikes = new HashSet<>();
+	private MpaRating mpa;
+
+	private final Collection<Genre> genres = new ArrayList<>();
 
 	public void validate() {
 		if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
@@ -36,16 +41,17 @@ public class Film {
 		}
 	}
 
-	public Set<Long> getUserLikes() {
-		return Set.copyOf(userLikes);
+	public void addGenre(Genre genre) {
+		if (!genres.contains(genre)) {
+			genres.add(genre);
+		}
 	}
 
-	public void addUserLike(final Long userId) {
-		userLikes.add(userId);
+	public void removeGenre(Genre genre) {
+		genres.remove(genre);
 	}
 
-	public void deleteUserLike(final Long userId) {
-		userLikes.remove(userId);
+	public void clearGenre() {
+		genres.clear();
 	}
-
 }

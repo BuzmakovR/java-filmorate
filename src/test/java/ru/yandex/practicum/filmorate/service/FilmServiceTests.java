@@ -3,30 +3,36 @@ package ru.yandex.practicum.filmorate.service;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.storage.impl.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.impl.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.List;
 
-public class FilmServiceTests {
+public abstract class FilmServiceTests {
 
-	private FilmService filmService;
-	private UserStorage userStorage;
+	@Autowired
+	protected FilmService filmService;
+
+	@Autowired
+	protected FilmStorage filmStorage;
+
+	@Autowired
+	protected UserStorage userStorage;
+
+	@Autowired
+	protected FilmLikeStorage filmLikeStorage;
+
+	@Autowired
+	protected GenreStorage genreStorage;
+
+	@Autowired
+	protected MpaRatingStorage mpaRatingStorage;
 
 	@BeforeEach
-	void initStorage() {
-		try {
-			FilmStorage filmStorage = new InMemoryFilmStorage();
-			userStorage = new InMemoryUserStorage();
-			filmService = new FilmService(filmStorage, userStorage);
-		} catch (Exception e) {
-			Assertions.fail(e.getMessage());
-		}
+	protected void initStorage() {
 	}
 
 	@Test
@@ -35,7 +41,7 @@ public class FilmServiceTests {
 			filmService.addLike(-1L, -1L);
 		}, "Не получено исключение NotFoundException при передаче несуществующих ID");
 
-		User user = User.builder().login("user").build();
+		User user = User.builder().login("film-service-addlike-user").email("email@email.ru").build();
 		Film film = Film.builder().name("film").build();
 		try {
 			user = userStorage.add(user);
@@ -66,12 +72,11 @@ public class FilmServiceTests {
 			Assertions.fail("Не удалось получить фильм по ID");
 		}
 		Assertions.assertNotNull(filmFromStorage, "Не удалось получить фильм по ID");
-		Assertions.assertFalse(filmFromStorage.getUserLikes().isEmpty(), "Список лайков фильма пустой");
 	}
 
 	@Test
 	void deleteLike() {
-		User user = User.builder().login("user").build();
+		User user = User.builder().login("film-service-deletelike-user").email("email@email.ru").build();
 		Film film = Film.builder().name("film").build();
 		try {
 			user = userStorage.add(user);
@@ -94,7 +99,6 @@ public class FilmServiceTests {
 			Assertions.fail("Не удалось получить фильм по ID");
 		}
 		Assertions.assertNotNull(filmFromStorage, "Не удалось получить фильм по ID");
-		Assertions.assertFalse(filmFromStorage.getUserLikes().isEmpty(), "Список лайков фильма пустой");
 
 		Assertions.assertThrows(NotFoundException.class, () -> {
 			filmService.deleteLike(-1L, -1L);
@@ -113,13 +117,15 @@ public class FilmServiceTests {
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при удалении лайка к фильму");
 		}
-		Assertions.assertTrue(filmFromStorage.getUserLikes().isEmpty(), "После удаления список лайков фильма не пустой");
 	}
 
 	@Test
 	void getPopularFilms() {
-		User user1 = User.builder().login("user-1").build();
-		User user2 = User.builder().login("user-2").build();
+		filmService.getFilms()
+				.forEach(film -> filmStorage.delete(film.getId()));
+
+		User user1 = User.builder().login("film-service-getpopular-user-1").email("email@email.ru").build();
+		User user2 = User.builder().login("film-service-getpopular-user-2").email("email@email.ru").build();
 		Film film1 = Film.builder().name("film-1").build();
 		Film film2 = Film.builder().name("film-2").build();
 		Film film3 = Film.builder().name("film-3").build();
