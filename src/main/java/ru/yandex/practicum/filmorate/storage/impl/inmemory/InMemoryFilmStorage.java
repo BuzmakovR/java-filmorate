@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 
 @Component("inMemoryFilmStorage")
@@ -61,7 +62,12 @@ public class InMemoryFilmStorage implements FilmStorage {
 
 	@Override
 	public Film delete(Long id) {
-		return films.remove(id);
+		Optional<Film> optionalFilm = Optional.ofNullable(films.remove(id));
+		if (optionalFilm.isEmpty()) {
+			throw new NotFoundException("Фильм с id = " + id + " не найден");
+		}
+
+		return optionalFilm.get();
 	}
 
 	// вспомогательный метод для генерации идентификатора нового поста

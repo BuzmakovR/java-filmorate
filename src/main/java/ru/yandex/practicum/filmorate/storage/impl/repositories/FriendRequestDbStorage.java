@@ -13,6 +13,7 @@ public class FriendRequestDbStorage extends BaseRepository<FriendRequest> implem
 
 	private static final String FIND_FRIENDS_BY_ID = "SELECT * FROM friend_requests WHERE user_id = ?";
 	private static final String DELETE_FRIEND_BY_ID = "DELETE FROM friend_requests WHERE user_id = ? AND friend_id = ?";
+	private static final String DELETE_FRIENDS_BY_USER_ID_OR_FRIEND_ID = "DELETE FROM friend_requests WHERE user_id = ? or friend_id = ?";
 	private static final String INSERT_QUERY = "INSERT INTO friend_requests(user_id, friend_id, is_confirmed) " +
 			"SELECT ?, ?, " +
 			"CASE " +
@@ -73,6 +74,15 @@ public class FriendRequestDbStorage extends BaseRepository<FriendRequest> implem
 				userId,
 				friendId,
 				friendId,
+				userId
+		);
+	}
+
+	@Override
+	public void deleteAllFriendsRequestForUser(Long userId) {
+		delete(
+				DELETE_FRIENDS_BY_USER_ID_OR_FRIEND_ID,
+				userId,
 				userId
 		);
 	}

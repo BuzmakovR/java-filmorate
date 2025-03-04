@@ -52,7 +52,10 @@ public class InMemoryUserStorage implements UserStorage {
 	@Override
 	public User delete(Long id) {
 		Optional<User> optionalUser = Optional.ofNullable(users.remove(id));
-		return optionalUser.orElse(null);
+		if (optionalUser.isEmpty()) {
+			throw new NotFoundException("Пользователь с id = " + id + " не найден");
+		}
+		return optionalUser.get();
 	}
 
 	private long getNextId() {
