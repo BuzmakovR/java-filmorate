@@ -1,16 +1,20 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -22,10 +26,15 @@ public class UserService {
 	private final FriendRequestStorage friendRequestStorage;
 
 	@Autowired
+	private final FilmService filmService;
+
+	@Autowired
 	public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
-					   @Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage) {
+					   @Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage,
+					   FilmService filmService) {
 		this.friendRequestStorage = friendRequestStorage;
 		this.userStorage = userStorage;
+		this.filmService = filmService;
 	}
 
 	public Collection<User> getUsers() {
@@ -96,5 +105,40 @@ public class UserService {
 				.stream()
 				.map(userStorage::get)
 				.toList();
+	}
+
+	public Set<Film> getRecommendationFilmsByUserId(long userId) {
+		log.info("Запрос рекомендаций для пользователя с id: {}", userId);
+		Map<User, Set<Film>> userLikes = filmService.getFilmLikesData();
+
+		User targetUser = userLikes.keySet().stream()
+				.filter(u -> u.getId() == userId)
+				.findFirst()
+				.orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+
+		Set<Film> targetUserLikedFilms = userLikes.get(targetUser);
+
+		Map<User, Long> similarUsers = userLikes.entrySet().stream()
+				.filter(entry -> !entry.getKey().equals(targetUser))
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						entry -> entry.getValue().stream()
+								.filter(targetUserLikedFilms::contains)
+								.count()
+				));
+
+		List<User> sortedSimilarUsers = similarUsers.entrySet().stream()
+				.sorted(Map.Entry.<User, Long>comparingByValue().reversed())
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toList());
+
+		Set<Film> recommendedFilms = new HashSet<>();
+		for (User similarUser : sortedSimilarUsers) {
+			Set<Film> filmsLikedBySimilarUser = userLikes.get(similarUser);
+			filmsLikedBySimilarUser.stream()
+					.filter(film -> !targetUserLikedFilms.contains(film))
+					.forEach(recommendedFilms::add);
+		}
+		return recommendedFilms;
 	}
 }

@@ -6,11 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.*;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.ArrayList;
+import java.util.*;
 
 @Service
 public class FilmService {
@@ -100,6 +99,28 @@ public class FilmService {
 					inputGenre.forEach(genre -> film.addGenre(genreStorage.get(genre.getId())));
 				});
 		film.validate();
+	}
+
+	public Map<User, Set<Film>> getFilmLikesData() {
+		Map<User, Set<Film>> filmLikesData = new HashMap<>();
+
+		Collection<User> users = userStorage.getAll();
+		Collection<Film> films = filmStorage.getAll();
+
+		Map<Long, Set<Long>> likesByFilm = filmLikeStorage.getAllLikes();
+
+		for (User user : users) {
+			Set<Film> likedFilms = new HashSet<>();
+
+			for (Film film : films) {
+				Set<Long> likes = likesByFilm.getOrDefault(film.getId(), Collections.emptySet());
+				if (likes.contains(user.getId())) {
+					likedFilms.add(film);
+				}
+			}
+			filmLikesData.put(user, likedFilms);
+		}
+		return filmLikesData;
 	}
 
 }
