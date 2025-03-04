@@ -118,6 +118,10 @@ public class UserService {
 
 		Set<Film> targetUserLikedFilms = userLikes.get(targetUser);
 
+		if (targetUserLikedFilms.isEmpty()) {
+			return Collections.emptySet();
+		}
+
 		Map<User, Long> similarUsers = userLikes.entrySet().stream()
 				.filter(entry -> !entry.getKey().equals(targetUser))
 				.collect(Collectors.toMap(
@@ -126,6 +130,10 @@ public class UserService {
 								.filter(targetUserLikedFilms::contains)
 								.count()
 				));
+
+		if (similarUsers.isEmpty()) {
+			return Collections.emptySet();
+		}
 
 		List<User> sortedSimilarUsers = similarUsers.entrySet().stream()
 				.sorted(Map.Entry.<User, Long>comparingByValue().reversed())
