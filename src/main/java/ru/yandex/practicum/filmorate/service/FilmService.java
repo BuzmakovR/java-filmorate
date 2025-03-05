@@ -84,7 +84,7 @@ public class FilmService {
 		filmLikeStorage.deleteFilmLike(filmId, userId);
 	}
 
-	public Collection<Film> getPopularFilms(Integer count, Integer genreId, Integer year) {
+	public Collection<Film> getPopularFilms(Integer count, Long genreId, Integer year) {
 		if (count < 1) {
 			throw new ValidationException("Значение переданного параметра количество записей должен быть больше 0");
 		}

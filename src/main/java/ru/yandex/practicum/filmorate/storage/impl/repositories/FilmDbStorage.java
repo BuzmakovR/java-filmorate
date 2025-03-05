@@ -117,7 +117,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 	}
 
 	@Override
-	public Collection<Film> getPopular(Integer count, Integer genreId, Integer year) {
+	public Collection<Film> getPopular(Integer count, Long genreId, Integer year) {
 		if (genreId == null && year == null) return findMany(paramGetPopularQuery(""), count);
 		else if (genreId != null && year == null) return findMany(paramGetPopularQuery(
 				"WHERE g.id = ?"), genreId, count);

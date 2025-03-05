@@ -79,7 +79,7 @@ public class FilmController {
 	//region FILM-LIKE
 	@GetMapping("/popular")
 	public Collection<Film> popular(@RequestParam(name = "count", defaultValue = "10") int count,
-									@RequestParam(name = "genreId", required = false) Integer genreId,
+									@RequestParam(name = "genreId", required = false) Long genreId,
 									@RequestParam(name = "year", required = false) Integer year) {
 		return filmService.getPopularFilms(count, genreId, year);
 	}
