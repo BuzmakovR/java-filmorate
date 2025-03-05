@@ -62,6 +62,19 @@ public class InMemoryFriendRequestStorage implements FriendRequestStorage {
 	}
 
 	@Override
+	public void deleteAllFriendsRequestForUser(Long userId) {
+		friends.stream()
+				.filter(friendRequest -> Objects.equals(friendRequest.getUserId(), userId))
+				.toList()
+				.forEach(friends::remove);
+
+		friends.stream()
+				.filter(friendRequest -> Objects.equals(friendRequest.getFriendId(), userId))
+				.toList()
+				.forEach(friends::remove);
+	}
+
+	@Override
 	public Collection<Long> getCommonFriendIds(Long userId1, Long userId2) {
 		Collection<Long> friend1 = friends.stream()
 				.filter(fr -> Objects.equals(fr.getUserId(), userId1))
