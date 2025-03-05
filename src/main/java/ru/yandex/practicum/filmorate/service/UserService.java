@@ -1,16 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -22,10 +25,15 @@ public class UserService {
 	private final FriendRequestStorage friendRequestStorage;
 
 	@Autowired
+	private final FilmService filmService;
+
+	@Autowired
 	public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
-					   @Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage) {
+					   @Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage,
+					   FilmService filmService) {
 		this.friendRequestStorage = friendRequestStorage;
 		this.userStorage = userStorage;
+		this.filmService = filmService;
 	}
 
 	public Collection<User> getUsers() {
@@ -98,5 +106,40 @@ public class UserService {
 				.stream()
 				.map(userStorage::get)
 				.toList();
+	}
+
+	public Set<Film> getRecommendationFilmsByUserId(long userId) {
+		log.info("Запрос рекомендаций для пользователя с id: {}", userId);
+		Map<Long, Set<Film>> userLikes = filmService.getFilmLikesData();
+		log.info("прошли фильм сервис");
+
+		Set<Film> targetUserLikedFilms = userLikes.getOrDefault(userId, new HashSet<>());
+
+		log.info("targetUserLikedFilms: {}", targetUserLikedFilms);
+		Map<Long, Long> similarUsers = userLikes.entrySet().stream()
+				.filter(entry -> !entry.getKey().equals(userId))
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						entry -> entry.getValue().stream()
+								.filter(targetUserLikedFilms::contains)
+								.count()
+				)).entrySet().stream().filter(entry -> entry.getValue() > 0)
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		log.info("Пересечение по пользователям: {}", similarUsers);
+		List<Long> sortedSimilarUsersId = similarUsers.entrySet().stream()
+				.sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
+				.map(Map.Entry::getKey)
+				.collect(Collectors.toList());
+		log.info("Отсортировали пересекающихся: {}", sortedSimilarUsersId);
+
+		Set<Film> recommendedFilms = new HashSet<>();
+		for (Long similarUser : sortedSimilarUsersId) {
+			Set<Film> filmsLikedBySimilarUser = userLikes.get(similarUser);
+			filmsLikedBySimilarUser.stream()
+					.filter(film -> !targetUserLikedFilms.contains(film))
+					.forEach(recommendedFilms::add);
+		}
+		log.info("Рекомендуемые фильмы: {}", recommendedFilms);
+		return recommendedFilms;
 	}
 }
