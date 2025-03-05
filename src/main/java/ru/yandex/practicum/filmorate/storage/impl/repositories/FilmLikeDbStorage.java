@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.FilmLike;
 import ru.yandex.practicum.filmorate.storage.FilmLikeStorage;
 
-import java.util.Collection;
+import java.util.*;
 
 @Repository("filmLikeDbStorage")
 public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmLikeStorage {
@@ -14,6 +14,7 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 	private static final String FIND_LIKES_BY_ID = "SELECT * FROM films_likes WHERE film_id = ?";
 	private static final String DELETE_LIKES_BY_ID = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
 	private static final String INSERT_QUERY = "INSERT INTO films_likes(film_id, user_id) VALUES(?, ?)";
+	private static final String FIND_ALL_LIKES_QUERY = "SELECT * FROM films_likes";
 
 	public FilmLikeDbStorage(JdbcTemplate jdbc, RowMapper<FilmLike> mapper) {
 		super(jdbc, mapper);
@@ -44,4 +45,13 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 		);
 	}
 
+	@Override
+	public Map<Long, Set<Long>> getAllLikes() {
+		List<FilmLike> likes = findMany(FIND_ALL_LIKES_QUERY);
+		Map<Long, Set<Long>> likesMap = new HashMap<>();
+		for (FilmLike like : likes) {
+			likesMap.computeIfAbsent(like.getUserId(), k -> new HashSet<>()).add(like.getFilmId());
+		}
+		return likesMap;
+	}
 }
