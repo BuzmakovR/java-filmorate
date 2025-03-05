@@ -70,7 +70,13 @@ public class FilmService {
 	}
 
 	public Film deleteFilm(final Long filmId) {
-		return filmStorage.delete(filmId);
+		Film film = filmStorage.delete(filmId);
+		filmLikeStorage.deleteAllLikesForFilm(film.getId());
+		return film;
+	}
+
+	public Collection<Long> getLikes(Long filmId) {
+		return filmLikeStorage.getFilmLikes(filmId);
 	}
 
 	public void addLike(Long filmId, Long userId) {

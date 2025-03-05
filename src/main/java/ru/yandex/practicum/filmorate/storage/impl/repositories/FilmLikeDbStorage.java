@@ -13,6 +13,7 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 
 	private static final String FIND_LIKES_BY_ID = "SELECT * FROM films_likes WHERE film_id = ?";
 	private static final String DELETE_LIKES_BY_ID = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
+	private static final String DELETE_ALL_LIKES_BY_ID = "DELETE FROM films_likes WHERE film_id = ?";
 	private static final String INSERT_QUERY = "INSERT INTO films_likes(film_id, user_id) VALUES(?, ?)";
 	private static final String FIND_ALL_LIKES_QUERY = "SELECT * FROM films_likes";
 
@@ -53,5 +54,12 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 			likesMap.computeIfAbsent(like.getUserId(), k -> new HashSet<>()).add(like.getFilmId());
 		}
 		return likesMap;
+	}
+	@Override
+	public void deleteAllLikesForFilm(Long filmId) {
+		delete(
+				DELETE_ALL_LIKES_BY_ID,
+				filmId
+		);
 	}
 }
