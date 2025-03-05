@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -8,10 +9,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class FilmService {
 
@@ -108,4 +109,23 @@ public class FilmService {
 		film.validate();
 	}
 
+	public Map<Long, Set<Film>> getFilmLikesData() {
+		log.info("зашли в getFilmLikesData");
+		Map<Long, Film> films = filmStorage.getAll().stream()
+				.collect(Collectors.toMap(Film::getId, film -> film));
+		log.info("успешно запросили пользователей и фильмы");
+
+		Map<Long, Set<Long>> likesByFilm = filmLikeStorage.getAllLikes();
+		log.info("успешно запросили лайки пользователей {}", likesByFilm);
+
+		Map<Long, Set<Film>> filmLikesData = new HashMap<>(likesByFilm.entrySet().stream()
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						entry -> entry.getValue().stream()
+								.map(films::get)
+								.collect(Collectors.toSet())
+				)));
+		log.info("filmLikesData: {}", filmLikesData);
+		return filmLikesData;
+	}
 }
