@@ -51,7 +51,7 @@ public class FilmController {
 
 		Film createdFilm = filmService.addFilm(film);
 
-		log.info("Фильм создан");
+		log.info("Фильм создан c id {}", createdFilm.getId());
 		log.debug(createdFilm.toString());
 
 		return film;
@@ -86,6 +86,7 @@ public class FilmController {
 
 	@PutMapping("/{id}/like/{userId}")
 	public void addLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
+		log.info("Пользователь с id {} лайкает фильм {}", userId, filmId);
 		filmService.addLike(filmId, userId);
 	}
 

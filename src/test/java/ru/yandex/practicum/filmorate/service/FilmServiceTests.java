@@ -6,12 +6,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public abstract class FilmServiceTests {
 
@@ -35,6 +38,89 @@ public abstract class FilmServiceTests {
 
 	@BeforeEach
 	protected void initStorage() {
+	}
+
+	@Test
+	void addFilms() {
+		Film film = Film.builder()
+				.name("film-service-add-film-1")
+				.description("film-service-add-film-1")
+				.build();
+
+		Film filmFromStorage = null;
+		try {
+			film = filmService.addFilm(film);
+			filmFromStorage = filmService.getFilm(film.getId());
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		Assertions.assertEquals(film, filmFromStorage, "Полученный фильм не соответствует добавленному");
+	}
+
+	@Test
+	void updateFilm() {
+		Film film = Film.builder()
+				.name("film-service-update-film-1")
+				.description("film-service-update-film-1")
+				.build();
+		try {
+			filmService.addFilm(film);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+
+		Film filmUpdate = Film.builder()
+				.name("film-service-update-film-1-updated")
+				.description("film-service-update-film-1-updated")
+				.build();
+		filmUpdate.setId(film.getId());
+
+		try {
+			filmService.updateFilm(filmUpdate);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+
+		Film filmFromStorage = null;
+		try {
+			filmFromStorage = filmService.getFilm(filmUpdate.getId());
+		} catch (Exception e) {
+			Assertions.fail("Не удалось получить фильм по ID");
+		}
+		Assertions.assertNotNull(filmFromStorage, "Не удалось получить фильм по ID");
+		Assertions.assertEquals(filmUpdate, filmFromStorage, "Полученный фильм не соответствует обновленному");
+
+		final Film film2Update = Film.builder()
+				.name("film-service-update-film-1-not-exists")
+				.description("film-service-update-film-1-updated")
+				.build();
+		assertThrows(ValidationException.class, () -> {
+			filmService.updateFilm(film2Update);
+		}, "Не получено исключение валидации при обновлении без ID");
+
+		film2Update.setId(999L);
+		assertThrows(NotFoundException.class, () -> {
+			filmService.updateFilm(film2Update);
+		}, "Не получено исключение NotFoundException");
+	}
+
+	@Test
+	void deleteFilm() {
+		Film film = Film.builder()
+				.name("film-service-delete-film-1")
+				.description("film-service-delete-film-1")
+				.build();
+		try {
+			film = filmService.addFilm(film);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		final Long filmId = film.getId();
+		filmService.deleteFilm(filmId);
+
+		assertThrows(NotFoundException.class, () -> {
+			filmService.getFilm(filmId);
+		}, "Не удалось удалить фильм");
 	}
 
 	@Test
@@ -79,21 +165,27 @@ public abstract class FilmServiceTests {
 	@Test
 	void deleteLike() {
 		User user = User.builder().login("film-service-deletelike-user").email("email@email.ru").build();
+		User user2 = User.builder().login("film-service-deletelike-user-2").email("email@email.ru").build();
 		Film film = Film.builder().name("film").build();
 		try {
 			user = userStorage.add(user);
+			user2 = userStorage.add(user2);
 			film = filmService.addFilm(film);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
 		final Long userId = user.getId();
+		final Long userId2 = user2.getId();
 		final Long filmId = film.getId();
 
 		try {
 			filmService.addLike(filmId, userId);
+			filmService.addLike(filmId, userId2);
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при добавлении лайка к фильму");
 		}
+		Assertions.assertEquals(2, filmService.getLikes(filmId).size(), "Кол-во лайков не соответствует добавленным");
+
 		Film filmFromStorage = null;
 		try {
 			filmFromStorage = filmService.getFilm(filmId);
@@ -119,6 +211,14 @@ public abstract class FilmServiceTests {
 		} catch (Exception e) {
 			Assertions.fail("Получено исключение при удалении лайка к фильму");
 		}
+		Assertions.assertEquals(1, filmService.getLikes(filmId).size(), "Кол-во лайков не соответствует добавленным");
+
+		try {
+			filmService.deleteFilm(filmId);
+		} catch (Exception e) {
+			Assertions.fail("Получено исключение при удалении фильма");
+		}
+		Assertions.assertEquals(0, filmService.getLikes(filmId).size(), "После удаления фильма список лайков к нему не удалился");
 	}
 
 	@Test
