@@ -104,8 +104,6 @@ public class FilmService {
 	}
 
 	public Map<Long, Set<Film>> getFilmLikesData() {
-		Map<Long, Set<Film>> filmLikesData = new HashMap<>();
-
 		log.info("зашли в getFilmLikesData");
 		Map<Long, Film> films = filmStorage.getAll().stream()
 				.collect(Collectors.toMap(Film::getId, film -> film));
@@ -113,21 +111,14 @@ public class FilmService {
 
 		Map<Long, Set<Long>> likesByFilm = filmLikeStorage.getAllLikes();
 		log.info("успешно запросили лайки пользователей {}", likesByFilm);
-		for (Long userId : likesByFilm.keySet()) {
-			Set<Film> likedFilms = new HashSet<>();
 
-			Set<Long> userLikedFilmIds = likesByFilm.get(userId);
-			if (userLikedFilmIds != null) {
-				for (Long filmId : userLikedFilmIds) {
-					Film film = films.get(filmId);
-					if (film != null) {
-						likedFilms.add(film);
-					}
-				}
-			}
-			log.info("Добавляем пользователю {} залайканые фильмы {}", userId, likedFilms.stream().map(Film::getId).toList());
-			filmLikesData.putIfAbsent(userId, likedFilms);
-		}
+		Map<Long, Set<Film>> filmLikesData = new HashMap<>(likesByFilm.entrySet().stream()
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						entry -> entry.getValue().stream()
+								.map(films::get)
+								.collect(Collectors.toSet())
+				)));
 		log.info("filmLikesData: {}", filmLikesData);
 		return filmLikesData;
 	}
