@@ -10,5 +10,7 @@ public interface FriendRequestStorage {
 
 	void deleteUserFriend(Long userId, Long friendId);
 
+	void deleteAllFriendsRequestForUser(Long userId);
+
 	Collection<Long> getCommonFriendIds(Long userId1, Long userId2);
 }

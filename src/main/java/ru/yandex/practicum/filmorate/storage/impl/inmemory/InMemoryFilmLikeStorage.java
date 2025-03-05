@@ -38,4 +38,12 @@ public class InMemoryFilmLikeStorage implements FilmLikeStorage {
 				.userId(userId)
 				.build());
 	}
+
+	@Override
+	public void deleteAllLikesForFilm(Long filmId) {
+		likes.stream()
+				.filter(filmLike -> Objects.equals(filmLike.getFilmId(), filmId))
+				.toList()
+				.forEach(likes::remove);
+	}
 }
