@@ -78,8 +78,10 @@ public class FilmController {
 
 	//region FILM-LIKE
 	@GetMapping("/popular")
-	public Collection<Film> friends(@RequestParam(name = "count", defaultValue = "10") int count) {
-		return filmService.getPopularFilms(count);
+	public Collection<Film> popular(@RequestParam(name = "count", defaultValue = "10") int count,
+									@RequestParam(name = "genreId", required = false) Integer genreId,
+									@RequestParam(name = "year", required = false) Integer year) {
+		return filmService.getPopularFilms(count, genreId, year);
 	}
 
 	@PutMapping("/{id}/like/{userId}")

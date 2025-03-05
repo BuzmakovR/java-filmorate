@@ -75,7 +75,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 	}
 
 	@Override
-	public Collection<Film> getPopular(Integer count) {
+	public Collection<Film> getPopular(Integer count, Integer genreId, Integer year) {
 		return films.values()
 				.stream()
 				.sorted(Collections.reverseOrder(

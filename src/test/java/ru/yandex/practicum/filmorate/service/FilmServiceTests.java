@@ -156,7 +156,7 @@ public abstract class FilmServiceTests {
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
-		List<Film> popularFilms = filmService.getPopularFilms(3).stream().toList();
+		List<Film> popularFilms = filmService.getPopularFilms(3, null, null).stream().toList();
 		Assertions.assertEquals(3, popularFilms.size(), "Длина списка популярных фильмов неверная");
 		Assertions.assertEquals(film2, popularFilms.getFirst(), "Последовательность популярности фильмов некорректная");
 		Assertions.assertEquals(film3, popularFilms.get(1), "Последовательность популярности фильмов некорректная");
