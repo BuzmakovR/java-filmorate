@@ -55,6 +55,7 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 		}
 		return likesMap;
 	}
+
 	@Override
 	public void deleteAllLikesForFilm(Long filmId) {
 		delete(
