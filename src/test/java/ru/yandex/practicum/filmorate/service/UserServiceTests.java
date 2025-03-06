@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -30,6 +31,9 @@ public abstract class UserServiceTests {
 
 	@Autowired
 	protected FilmService filmService;
+
+	@Autowired
+	protected FeedStorage feedStorage;
 
 	@BeforeEach
 	protected void initStorage() {

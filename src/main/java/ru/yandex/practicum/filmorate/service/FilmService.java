@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
+import ru.yandex.practicum.filmorate.model.feedResource.EventType;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.*;
@@ -36,16 +38,22 @@ public class FilmService {
 	@Qualifier("mpaRatingDbStorage")
 	private final MpaRatingStorage mpaRatingStorage;
 
+	@Qualifier("feedDbStorage")
+	@Autowired
+	private final FeedStorage feedStorage;
+
 	public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
 					   @Qualifier("filmLikeDbStorage") FilmLikeStorage filmLikeStorage,
 					   @Qualifier("userDbStorage") UserStorage userStorage,
 					   @Qualifier("genreDbStorage") GenreStorage genreStorage,
-					   @Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage) {
+					   @Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage,
+					   @Qualifier("feedDbStorage") FeedStorage feedStorage) {
 		this.filmStorage = filmStorage;
 		this.filmLikeStorage = filmLikeStorage;
 		this.userStorage = userStorage;
 		this.genreStorage = genreStorage;
 		this.mpaRatingStorage = mpaRatingStorage;
+		this.feedStorage = feedStorage;
 	}
 
 	public Collection<Film> getFilms() {
@@ -83,12 +91,14 @@ public class FilmService {
 		filmStorage.get(filmId);
 		userStorage.get(userId);
 		filmLikeStorage.addFilmLike(filmId, userId);
+		feedStorage.addEvent(userId, filmId, EventOperation.ADD, EventType.LIKE);
 	}
 
 	public void deleteLike(Long filmId, Long userId) {
 		filmStorage.get(filmId);
 		userStorage.get(userId);
 		filmLikeStorage.deleteFilmLike(filmId, userId);
+		feedStorage.addEvent(userId, filmId, EventOperation.REMOVE, EventType.LIKE);
 	}
 
 	public Collection<Film> getPopularFilms(Integer count) {
