@@ -5,8 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
+import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -24,16 +28,22 @@ public class UserService {
 	@Qualifier("friendRequestDbStorage")
 	private final FriendRequestStorage friendRequestStorage;
 
+	@Qualifier("feedDbStorage")
+	@Autowired
+	private final FeedStorage feedStorage;
+
 	@Autowired
 	private final FilmService filmService;
 
 	@Autowired
 	public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
 					   @Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage,
-					   FilmService filmService) {
+					   FilmService filmService,
+					   @Qualifier("feedDbStorage") FeedStorage feedStorage) {
 		this.friendRequestStorage = friendRequestStorage;
 		this.userStorage = userStorage;
 		this.filmService = filmService;
+		this.feedStorage = feedStorage;
 	}
 
 	public Collection<User> getUsers() {
@@ -85,6 +95,7 @@ public class UserService {
 			throw new ValidationException("Идентификаторы пользователей не могут быть равны");
 		}
 		friendRequestStorage.addUserFriend(userId, friendId);
+		feedStorage.addEvent(userId, friendId, EventOperation.ADD, EventType.FRIEND);
 	}
 
 	public void deleteFriend(Long userId, Long friendId) {
@@ -94,6 +105,7 @@ public class UserService {
 		userStorage.get(userId);
 		userStorage.get(friendId);
 		friendRequestStorage.deleteUserFriend(userId, friendId);
+		feedStorage.addEvent(userId, friendId, EventOperation.REMOVE, EventType.FRIEND);
 	}
 
 	public Collection<User> getCommonFriends(Long userId1, Long userId2) {
@@ -141,5 +153,9 @@ public class UserService {
 		}
 		log.info("Рекомендуемые фильмы: {}", recommendedFilms);
 		return recommendedFilms;
+	}
+
+	public Collection<Feed> getFeed(Long userId) {
+		return feedStorage.getFeed(userId);
 	}
 }

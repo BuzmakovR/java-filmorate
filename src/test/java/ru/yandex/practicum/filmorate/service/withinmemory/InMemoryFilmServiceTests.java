@@ -17,11 +17,14 @@ public class InMemoryFilmServiceTests extends FilmServiceTests {
 			filmStorage = new InMemoryFilmStorage((InMemoryFilmLikeStorage) filmLikeStorage);
 			genreStorage = new InMemoryGenreStorage();
 			mpaRatingStorage = new InMemoryMpaRatingStorage();
+			feedStorage = new InMemoryFeedStorage();
+
 			filmService = new FilmService(filmStorage,
 					filmLikeStorage,
 					userStorage,
 					genreStorage,
-					mpaRatingStorage
+					mpaRatingStorage,
+					feedStorage
 			);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
