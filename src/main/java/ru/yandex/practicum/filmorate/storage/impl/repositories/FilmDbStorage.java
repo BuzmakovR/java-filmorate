@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository("filmDbStorage")
@@ -46,6 +47,16 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 			"LEFT JOIN films_likes fl ON fl.film_id = f.id " +
 			"GROUP BY f.id " +
 			"ORDER BY like_count DESC LIMIT ?";
+
+	private static final String SEARCH_BY_TITLE_QUERY =
+			"SELECT f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, " +
+			"mr.name AS mpa_rating_name, COUNT(DISTINCT fl.user_id) AS like_count " +
+			"FROM films f " +
+			"LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id " +
+			"LEFT JOIN films_likes fl ON fl.film_id = f.id " +
+			"WHERE f.name ILIKE ? " +
+			"GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, mr.name " +
+			"ORDER BY like_count DESC";
 
 	private static final String INSERT_FILM_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
 	private static final String INSERT_FILM_GENRE_QUERY = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
@@ -131,5 +142,14 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 	@Override
 	public Collection<Film> getPopular(Integer count) {
 		return findMany(FIND_POPULAR, count);
+	}
+
+	@Override
+	public Collection<Film> searchFilms(String query) {
+		if (query == null) {
+			throw new IllegalArgumentException("Параметр 'query' не может быть null");
+		}
+		String searchPattern = "%" + query + "%";
+		return findMany(SEARCH_BY_TITLE_QUERY, searchPattern);
 	}
 }

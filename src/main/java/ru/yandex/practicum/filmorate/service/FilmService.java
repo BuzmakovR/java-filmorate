@@ -128,4 +128,12 @@ public class FilmService {
 		log.info("filmLikesData: {}", filmLikesData);
 		return filmLikesData;
 	}
+
+	public Collection<Film> searchFilms(String query) {
+		log.info("Поиск фильмов по запросу: {}", query);
+		if (query == null || query.isBlank()) {
+			throw new ValidationException("Параметр 'query' не может быть пустым");
+		}
+		return filmStorage.searchFilms(query);
+	}
 }
