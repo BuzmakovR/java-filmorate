@@ -21,7 +21,8 @@ public class InMemoryFilmServiceTests extends FilmServiceTests {
 					filmLikeStorage,
 					userStorage,
 					genreStorage,
-					mpaRatingStorage
+					mpaRatingStorage,
+					directorStorage
 			);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());

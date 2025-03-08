@@ -20,7 +20,8 @@ public class InMemoryUserServiceTests extends UserServiceTests {
 					new InMemoryFilmLikeStorage(),
 					userStorage,
 					new InMemoryGenreStorage(),
-					new InMemoryMpaRatingStorage()
+					new InMemoryMpaRatingStorage(),
+					new InMemoryDirectorStorage()
 			);
 			userService = new UserService(userStorage, friendRequestStorage, filmService);
 		} catch (Exception e) {

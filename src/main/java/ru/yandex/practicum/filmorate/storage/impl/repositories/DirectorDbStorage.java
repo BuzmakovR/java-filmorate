@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.DirectorRowMapper;
 
 import java.util.ArrayList;
@@ -18,12 +19,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
-@Repository("directorStorage")
+@Repository("directorDbStorage")
 @RequiredArgsConstructor
-public class DirectorStorage {
+public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbc;
     private final DirectorRowMapper mapper;
 
+    @Override
     public Optional<Director> getById(Long id) {
         try {
             String findDirectorByIdQuery = "SELECT * FROM directors WHERE id = ?";
@@ -34,17 +36,20 @@ public class DirectorStorage {
         }
     }
 
+    @Override
     public List<Director> getAll() {
         String findAllDirectorsQuery = "SELECT * FROM directors";
         return jdbc.query(findAllDirectorsQuery, mapper);
     }
 
+    @Override
     public Director create(Director director) {
         String insertDirectorQuery = "INSERT INTO directors (id, name) VALUES (?, ?)";
         jdbc.update(insertDirectorQuery, director.getId(), director.getName());
         return director;
     }
 
+    @Override
     public Director update(Director newDirector) {
         String updateDirectorQuery = "UPDATE directors SET name = ? WHERE id = ?";
         jdbc.update(updateDirectorQuery,
@@ -52,11 +57,13 @@ public class DirectorStorage {
         return newDirector;
     }
 
+    @Override
     public void deleteById(Long id) {
         String deleteDirectorQuery = "DELETE FROM directors WHERE id = ?";
         jdbc.update(deleteDirectorQuery, id);
     }
 
+    @Override
     public Map<Long, Set<Director>> getAllFilmsDirectors() {
         String getAllFilmsDirectorsQuery = "SELECT f.id AS film_id, d.id AS director_id, d.name AS director_name\n" +
                 "FROM films f\n" +
@@ -79,6 +86,7 @@ public class DirectorStorage {
         return filmDirectors;
     }
 
+    @Override
     public void saveDirectors(Film film) {
         Set<Director> filmDirectors = film.getDirectors();
 
@@ -100,6 +108,7 @@ public class DirectorStorage {
         jdbc.update(sql.toString(), params.toArray());
     }
 
+    @Override
     public void updateDirectors(Film film) {
         String deleteSql = "DELETE FROM film_directors WHERE film_id = ?";
         jdbc.update(deleteSql, film.getId());

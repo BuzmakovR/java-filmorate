@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.impl.repositories.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.impl.repositories.DirectorDbStorage;
 
 import java.util.List;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class DirectorService {
-    private final DirectorStorage directorStorage;
+    private final DirectorDbStorage directorStorage;
 
     /**
      * Retrieves a director by ID
