@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.FilmLike;
 import ru.yandex.practicum.filmorate.storage.FilmLikeStorage;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Component("inMemoryFilmLikeStorage")
 @RequiredArgsConstructor
@@ -37,5 +34,22 @@ public class InMemoryFilmLikeStorage implements FilmLikeStorage {
 				.filmId(filmId)
 				.userId(userId)
 				.build());
+	}
+
+	@Override
+	public Map<Long, Set<Long>> getAllLikes() {
+		Map<Long, Set<Long>> likesMap = new HashMap<>();
+		for (FilmLike like : likes) {
+			likesMap.computeIfAbsent(like.getUserId(), k -> new HashSet<>()).add(like.getFilmId());
+		}
+		return likesMap;
+	}
+
+	@Override
+	public void deleteAllLikesForFilm(Long filmId) {
+		likes.stream()
+				.filter(filmLike -> Objects.equals(filmLike.getFilmId(), filmId))
+				.toList()
+				.forEach(likes::remove);
 	}
 }

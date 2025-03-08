@@ -82,21 +82,21 @@ USING (
 ) d ON (t.film_id = d.film_id AND t.genre_id = d.genre_id)
 WHEN NOT MATCHED THEN INSERT(film_id, genre_id) VALUES(d.film_id, d.genre_id);
 
-MERGE INTO films_likes AS t
-USING (
-    SELECT
-        (SELECT id FROM films WHERE name = 'film-1') film_id,
-        (SELECT id FROM users WHERE login = 'user-1') user_id
-    FROM dual
-    UNION ALL
-    SELECT
-        (SELECT id FROM films WHERE name = 'film-2'),
-        (SELECT id FROM users WHERE login = 'user-3')
-    FROM dual
-    UNION ALL
-    SELECT
-        (SELECT id FROM films WHERE name = 'film-2'),
-        (SELECT id FROM users WHERE login = 'user-1')
-    FROM dual
-) d ON (t.film_id = d.film_id AND t.user_id = d.user_id)
-WHEN NOT MATCHED THEN INSERT(film_id, user_id) VALUES(d.film_id, d.user_id);
+--MERGE INTO films_likes AS t
+--USING (
+--    SELECT
+--        (SELECT id FROM films WHERE name = 'film-1') film_id,
+--        (SELECT id FROM users WHERE login = 'user-1') user_id
+--    FROM dual
+--    UNION ALL
+--    SELECT
+--        (SELECT id FROM films WHERE name = 'film-2'),
+--        (SELECT id FROM users WHERE login = 'user-3')
+--    FROM dual
+--    UNION ALL
+--    SELECT
+--        (SELECT id FROM films WHERE name = 'film-2'),
+--        (SELECT id FROM users WHERE login = 'user-1')
+--    FROM dual
+--) d ON (t.film_id = d.film_id AND t.user_id = d.user_id)
+--WHEN NOT MATCHED THEN INSERT(film_id, user_id) VALUES(d.film_id, d.user_id);

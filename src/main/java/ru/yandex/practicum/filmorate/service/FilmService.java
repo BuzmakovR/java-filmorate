@@ -84,7 +84,13 @@ public class FilmService {
 	}
 
 	public Film deleteFilm(final Long filmId) {
-		return filmStorage.delete(filmId);
+		Film film = filmStorage.delete(filmId);
+		filmLikeStorage.deleteAllLikesForFilm(film.getId());
+		return film;
+	}
+
+	public Collection<Long> getLikes(Long filmId) {
+		return filmLikeStorage.getFilmLikes(filmId);
 	}
 
 	public void addLike(Long filmId, Long userId) {
@@ -166,4 +172,23 @@ public class FilmService {
 		}
 	}
 
+	public Map<Long, Set<Film>> getFilmLikesData() {
+		log.info("зашли в getFilmLikesData");
+		Map<Long, Film> films = filmStorage.getAll().stream()
+				.collect(Collectors.toMap(Film::getId, film -> film));
+		log.info("успешно запросили пользователей и фильмы");
+
+		Map<Long, Set<Long>> likesByFilm = filmLikeStorage.getAllLikes();
+		log.info("успешно запросили лайки пользователей {}", likesByFilm);
+
+		Map<Long, Set<Film>> filmLikesData = new HashMap<>(likesByFilm.entrySet().stream()
+				.collect(Collectors.toMap(
+						Map.Entry::getKey,
+						entry -> entry.getValue().stream()
+								.map(films::get)
+								.collect(Collectors.toSet())
+				)));
+		log.info("filmLikesData: {}", filmLikesData);
+		return filmLikesData;
+	}
 }

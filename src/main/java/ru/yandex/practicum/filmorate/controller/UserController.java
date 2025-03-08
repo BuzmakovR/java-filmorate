@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -50,7 +51,7 @@ public class UserController {
 
 		User createdUser = userService.addUser(user);
 
-		log.info("Пользователь создан");
+		log.info("Пользователь создан c id {}", createdUser.getId());
 		log.debug(createdUser.toString());
 
 		return createdUser;
@@ -58,7 +59,7 @@ public class UserController {
 
 	@PutMapping
 	public User update(@Valid @RequestBody User newUser) {
-		log.info("Запрос на обновление пользователя");
+		log.info("Запрос на обновление пользователя c id {}", newUser.getId());
 
 		User updatedUser = userService.updateUser(newUser);
 
@@ -94,5 +95,11 @@ public class UserController {
 	public void deleteFriend(@PathVariable("id") long userId, @PathVariable("friendId") long friendId) {
 		userService.deleteFriend(userId, friendId);
 	}
+
+	@GetMapping("/{id}/recommendations")
+	public Collection<Film> recommendationFilms(@PathVariable("id") long userId) {
+		return userService.getRecommendationFilmsByUserId(userId);
+	}
+
 	//endregion
 }
