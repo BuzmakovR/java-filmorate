@@ -19,15 +19,12 @@ import java.util.Collection;
 @Service
 public class ReviewService {
 
-	@Autowired
 	@Qualifier("reviewDbStorage")
 	private final ReviewStorage reviewStorage;
 
-	@Autowired
 	@Qualifier("filmDbStorage")
 	private final FilmStorage filmStorage;
 
-	@Autowired
 	@Qualifier("userDbStorage")
 	private final UserStorage userStorage;
 
