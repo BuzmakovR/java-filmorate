@@ -17,7 +17,7 @@ public class FeedDbStorage extends BaseRepository<Feed> implements FeedStorage {
 	private static final String INSERT_QUERY = """
 			INSERT INTO feeds (user_id, entity_id, timestamp, event_type, event_operation)
 			VALUES (?, ?, ?, ?, ?)""";
-	private static final String FIND_BY_USERID_QUERY = "SELECT * FROM feeds WHERE user_id = ? ORDER BY event_id DESC";
+	private static final String FIND_BY_USERID_QUERY = "SELECT * FROM feeds WHERE user_id = ? ORDER BY event_id";
 
 	public FeedDbStorage(JdbcTemplate jdbc, RowMapper<Feed> mapper) {
 		super(jdbc, mapper);

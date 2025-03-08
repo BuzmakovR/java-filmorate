@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
@@ -13,6 +14,8 @@ public class Feed {
 	private Long userId;
 	private Long entityId;
 	private Long timestamp;
+
+	@JsonProperty("operation")
 	private EventOperation eventOperation;
 	private EventType eventType;
 }
