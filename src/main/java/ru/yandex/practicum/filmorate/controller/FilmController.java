@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -92,4 +93,12 @@ public class FilmController {
 		filmService.deleteLike(filmId, userId);
 	}
 	//endregion
+
+	@GetMapping("/director/{directorId}")
+	public List<Film> getFilmsByDirector(
+			@PathVariable Long directorId,
+			@RequestParam(defaultValue = "likes") String sortBy) {
+
+		return filmService.getFilmsByDirectorSorted(directorId, sortBy);
+	}
 }

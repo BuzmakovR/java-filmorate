@@ -1,17 +1,26 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
+import ru.yandex.practicum.filmorate.storage.impl.repositories.DirectorStorage;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class FilmService {
 
@@ -35,16 +44,22 @@ public class FilmService {
 	@Qualifier("mpaRatingDbStorage")
 	private final MpaRatingStorage mpaRatingStorage;
 
+	@Autowired
+	@Qualifier("directorStorage")
+	private final DirectorStorage directorStorage;
+
 	public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
 					   @Qualifier("filmLikeDbStorage") FilmLikeStorage filmLikeStorage,
 					   @Qualifier("userDbStorage") UserStorage userStorage,
 					   @Qualifier("genreDbStorage") GenreStorage genreStorage,
-					   @Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage) {
+					   @Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage,
+					   @Qualifier("directorStorage") DirectorStorage directorStorage) {
 		this.filmStorage = filmStorage;
 		this.filmLikeStorage = filmLikeStorage;
 		this.userStorage = userStorage;
 		this.genreStorage = genreStorage;
 		this.mpaRatingStorage = mpaRatingStorage;
+		this.directorStorage = directorStorage;
 	}
 
 	public Collection<Film> getFilms() {
@@ -99,7 +114,56 @@ public class FilmService {
 					film.clearGenre();
 					inputGenre.forEach(genre -> film.addGenre(genreStorage.get(genre.getId())));
 				});
+		validateFilmDirector(film);
 		film.validate();
+	}
+
+	public List<Film> getFilmsByDirectorSorted(Long directorId, String sortBy) {
+		List<Film> films;
+		if ("year".equalsIgnoreCase(sortBy)) {
+			log.info("запустили getDirectorFilmSortedByYear");
+			films = filmStorage.getDirectorFilmSortedByYear(directorId);
+		} else if ("likes".equalsIgnoreCase(sortBy)) {
+			log.info("запустили getDirectorFilmSortedByLike");
+			films = filmStorage.getDirectorFilmSortedByLike(directorId);
+		} else {
+			throw new IllegalArgumentException("Invalid sortBy parameter");
+		}
+		setAdditionalFieldsForFilms(films);
+		return films;
+	}
+
+	private void setAdditionalFieldsForFilms(List<Film> films) {
+		setDirectorsForFilms(films);
+	}
+	/**
+	 * Set directors for films.
+	 *
+	 * @param films
+	 */
+	private void setDirectorsForFilms(List<Film> films) {
+		Map<Long, Set<Director>> filmsDirectors = directorStorage.getAllFilmsDirectors();
+		for (Film film : films) {
+			Set<Director> directors = filmsDirectors.getOrDefault(film.getId(), new HashSet<>());
+			film.setDirectors(directors);
+		}
+	}
+
+	private void validateFilmDirector(Film film) {
+		// Validate directors
+		if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+			Set<Long> availableDirectorIds = directorStorage.getAll().stream()
+					.map(Director::getId)
+					.collect(Collectors.toSet());
+
+			Set<Long> filmDirectorsIds = film.getDirectors().stream()
+					.map(Director::getId)
+					.collect(Collectors.toSet());
+
+			if (!availableDirectorIds.containsAll(filmDirectorsIds)) {
+				throw new ValidationException("Invalid film director!");
+			}
+		}
 	}
 
 }

@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -34,6 +36,13 @@ public class Film {
 	private MpaRating mpa;
 
 	private final Collection<Genre> genres = new ArrayList<>();
+
+	@Builder.Default
+	private Set<Director> directors = new HashSet<>();
+
+	private Integer likes;
+
+	private Integer releaseYear;
 
 	public void validate() {
 		if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {

@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository("filmDbStorage")
@@ -131,5 +132,40 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 	@Override
 	public Collection<Film> getPopular(Integer count) {
 		return findMany(FIND_POPULAR, count);
+	}
+
+	public List<Film> getDirectorFilmSortedByLike(Long directorId) {
+		String sql = "SELECT f.*, fl.likes_count, mr.id AS mpa_rating_id, mr.name AS mpa_name " +
+				"FROM films f " +
+				"LEFT JOIN ( " +
+				"    SELECT film_id, COUNT(user_id) AS likes_count " +
+				"    FROM films_likes " +
+				"    GROUP BY film_id " +
+				") fl ON fl.film_id = f.id " +
+				"LEFT JOIN mpa_ratings mr ON f.mpa_rating_id = mr.id " +
+				"WHERE f.id IN ( " +
+				"    SELECT film_id " +
+				"    FROM film_directors fd " +
+				"    WHERE fd.director_id = ? " +
+				") " +
+				"ORDER BY fl.likes_count DESC";
+
+		return jdbc.query(sql, mapper, directorId);
+	}
+
+	public List<Film> getDirectorFilmSortedByYear(Long directorId) {
+		String sql = "SELECT f.*, " +
+				"EXTRACT(YEAR FROM CAST(f.RELEASE_DATE AS DATE)) AS release_year, " +
+				"mr.ID AS mpa_id, mr.name AS mpa_name " +
+				"FROM FILMS f " +
+				"LEFT JOIN mpa_ratings mr ON f.mpa_rating_id = mr.id " +
+				"WHERE f.ID IN ( " +
+				"SELECT film_id " +
+				"FROM film_directors fd " +
+				"WHERE fd.director_id = ? " +
+				") " +
+				"ORDER BY release_year ASC";
+
+		return jdbc.query(sql, mapper, directorId);
 	}
 }

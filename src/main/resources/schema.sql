@@ -44,6 +44,19 @@ CREATE TABLE IF NOT EXISTS films_genres (
   PRIMARY KEY (film_id, genre_id)
 );
 
+CREATE TABLE IF NOT EXISTS directors (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS film_directors (
+    film_id BIGINT NOT NULL,
+    director_id BIGINT NOT NULL,
+    CONSTRAINT fk_film_directors FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    CONSTRAINT fk_director FOREIGN KEY (director_id) REFERENCES directors (id) ON DELETE CASCADE,
+    CONSTRAINT unique_film_director UNIQUE (film_id, director_id)
+);
+
 ALTER TABLE users ADD CONSTRAINT IF NOT EXISTS uq_users_login UNIQUE (login);
 
 ALTER TABLE films ADD FOREIGN KEY (mpa_rating_id) REFERENCES mpa_ratings (id) ON DELETE CASCADE;
