@@ -93,4 +93,12 @@ public class FilmController {
 		filmService.deleteLike(filmId, userId);
 	}
 	//endregion
+
+	@GetMapping("/search")
+	public Collection<Film> searchFilms(@RequestParam String query) {
+		log.info("Запрос на поиск фильмов: {}", query);
+		Collection<Film> films = filmService.searchFilms(query);
+		log.debug("Найденные фильмы: {}", films);
+		return films;
+	}
 }
