@@ -118,14 +118,15 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
 	@Override
 	public Collection<Film> getPopular(Integer count, Long genreId, Integer year) {
-		if (genreId == null && year == null) return findMany(paramGetPopularQuery(""), count);
-		else if (genreId != null && year == null) return findMany(paramGetPopularQuery(
-				"WHERE g.id = ?"), genreId, count);
-		else if (genreId == null && year != null) return findMany(
-				paramGetPopularQuery("WHERE YEAR (f.release_date) = ?"), year, count);
-		else if (genreId != null && year != null) return findMany(paramGetPopularQuery(
-				"WHERE g.id = ? AND YEAR (f.release_date) = ?"), genreId, year, count);
-		else throw new InternalServerException("Неверные входные параметры");
+		if (genreId == null && year == null) {
+			return findMany(paramGetPopularQuery(""), count);
+		} else if (genreId != null && year == null) {
+			return findMany(paramGetPopularQuery("WHERE g.id = ?"), genreId, count);
+		} else if (genreId == null && year != null) {
+			return findMany(paramGetPopularQuery("WHERE YEAR (f.release_date) = ?"), year, count);
+		} else {
+			return findMany(paramGetPopularQuery("WHERE g.id = ? AND YEAR (f.release_date) = ?"), genreId, year, count);
+		}
 	}
 
 	private String paramGetPopularQuery(String paramsString) {
