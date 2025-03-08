@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ReviewService {
 
@@ -28,15 +30,6 @@ public class ReviewService {
 	@Autowired
 	@Qualifier("userDbStorage")
 	private final UserStorage userStorage;
-
-
-	public ReviewService(@Qualifier("reviewDbStorage") ReviewStorage reviewStorage,
-						 @Qualifier("filmDbStorage") FilmStorage filmStorage,
-						 @Qualifier("userDbStorage") UserStorage userStorage) {
-		this.reviewStorage = reviewStorage;
-		this.filmStorage = filmStorage;
-		this.userStorage = userStorage;
-	}
 
 	public Review getReview(final Long reviewId) {
 		return reviewStorage.get(reviewId);
