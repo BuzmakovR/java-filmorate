@@ -10,8 +10,8 @@ import ru.yandex.practicum.filmorate.model.ReviewLike;
 import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
 import ru.yandex.practicum.filmorate.model.feedResource.EventType;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
-import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -68,13 +68,13 @@ public class ReviewService {
 		Review review = reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.addLike(reviewLike);
-		feedStorage.addEvent(reviewLike.getUserId(),review.getReviewId(), EventOperation.ADD, EventType.LIKE);
+		feedStorage.addEvent(reviewLike.getUserId(), review.getReviewId(), EventOperation.ADD, EventType.LIKE);
 	}
 
 	public void deleteLike(ReviewLike reviewLike) {
 		Review review = reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.deleteLike(reviewLike);
-		feedStorage.addEvent(reviewLike.getUserId(), review.getReviewId(), EventOperation.REMOVE, EventType.LIKE );
+		feedStorage.addEvent(reviewLike.getUserId(), review.getReviewId(), EventOperation.REMOVE, EventType.LIKE);
 	}
 }
