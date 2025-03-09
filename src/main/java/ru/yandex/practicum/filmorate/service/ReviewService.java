@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -17,34 +17,21 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class ReviewService {
 
-	@Autowired
 	@Qualifier("reviewDbStorage")
 	private final ReviewStorage reviewStorage;
 
-	@Autowired
 	@Qualifier("filmDbStorage")
 	private final FilmStorage filmStorage;
 
-	@Autowired
 	@Qualifier("userDbStorage")
 	private final UserStorage userStorage;
 
-@Autowired
-@Qualifier("feedDbStorage")
-private final FeedStorage feedStorage;
-
-	public ReviewService(@Qualifier("reviewDbStorage") ReviewStorage reviewStorage,
-						 @Qualifier("filmDbStorage") FilmStorage filmStorage,
-						 @Qualifier("userDbStorage") UserStorage userStorage,
-						 @Qualifier("feedDbStorage") FeedStorage feedStorage) {
-		this.reviewStorage = reviewStorage;
-		this.filmStorage = filmStorage;
-		this.userStorage = userStorage;
-		this.feedStorage = feedStorage;
-	}
+	@Qualifier("feedDbStorage")
+	private final FeedStorage feedStorage;
 
 	public Review getReview(final Long reviewId) {
 		return reviewStorage.get(reviewId);
