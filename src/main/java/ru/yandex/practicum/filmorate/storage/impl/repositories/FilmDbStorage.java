@@ -89,8 +89,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ? WHERE id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
     private static final String DELETE_FILM_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
-    private static final String SQL_UPDATE_DIRECTORS =
-            "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
+    private static final String UPDATE_FILM_DIRECTORS_QUERY = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
+    private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM film_directors WHERE film_id = ?";
 
     public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -157,22 +157,13 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 
         Long filmId = newFilm.getId();
 
-// Проверка на null перед выполнением DELETE
-        if (filmId != null) {
-            String sql = "DELETE FROM film_directors WHERE film_id = ?";
-            jdbc.update(sql, filmId);
-        } else {
-            log.warn("filmId равен null, удаление режиссеров фильма пропущено");
-        }
-
 // Добавляем режиссеров фильма, если определены новые
         if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) {
+            delete(DELETE_FILM_DIRECTORS_QUERY, newFilm.getId());
             List<Object[]> batchParams = newFilm.getDirectors().stream()
                     .map(director -> new Object[]{newFilm.getId(), director.getId()})
                     .toList();
-            jdbc.batchUpdate(SQL_UPDATE_DIRECTORS, batchParams);
-        } else {
-            log.debug("Режиссеры фильма не указаны, добавление режиссеров пропущено");
+            jdbc.batchUpdate(UPDATE_FILM_DIRECTORS_QUERY, batchParams);
         }
         return newFilm;
     }

@@ -150,20 +150,24 @@ public class FilmService {
 
     public List<Film> getFilmsByDirectorSorted(Long directorId, String sortBy) {
         log.info("Запрос фильмов режиссера {} с сортировкой по {}", directorId, sortBy);
-        List<Film> films;
-        if ("year".equalsIgnoreCase(sortBy)) {
-            films = filmStorage.getDirectorFilmSortedByYear(directorId);
-            log.debug("Найдено {} фильмов, отсортированных по году", films.size());
-        } else if ("likes".equalsIgnoreCase(sortBy)) {
-            films = filmStorage.getDirectorFilmSortedByLike(directorId);
-            log.debug("Найдено {} фильмов, отсортированных по лайкам", films.size());
-        } else {
-            log.error("Некорректный параметр сортировки: {}", sortBy);
-            throw new IllegalArgumentException("Invalid sortBy parameter");
-        }
+        validateSortBy(sortBy);
+
+        List<Film> films = "year".equalsIgnoreCase(sortBy)
+                ? filmStorage.getDirectorFilmSortedByYear(directorId)
+                : filmStorage.getDirectorFilmSortedByLike(directorId);
+
+        log.debug("Найдено {} фильмов, отсортированных по {}", films.size(), sortBy);
         setAdditionalFieldsForFilms(films);
         return films;
     }
+
+    private void validateSortBy(String sortBy) {
+        if (!"year".equalsIgnoreCase(sortBy) && !"likes".equalsIgnoreCase(sortBy)) {
+            log.error("Некорректный параметр сортировки: {}", sortBy);
+            throw new IllegalArgumentException("Invalid sortBy parameter");
+        }
+    }
+
 
     private void setAdditionalFieldsForFilms(List<Film> films) {
         log.debug("Установка дополнительных полей для {} фильмов", films.size());
@@ -182,20 +186,15 @@ public class FilmService {
     private void validateFilmDirector(Film film) {
         log.debug("Валидация режиссеров фильма {}", film.getId());
         if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
-            Set<Long> availableDirectorIds = directorStorage.getAll().stream()
-                    .map(Director::getId)
-                    .collect(Collectors.toSet());
-
-            Set<Long> filmDirectorsIds = film.getDirectors().stream()
-                    .map(Director::getId)
-                    .collect(Collectors.toSet());
-
-            if (!availableDirectorIds.containsAll(filmDirectorsIds)) {
-                log.error("Найдены несуществующие ID режиссеров: {}", filmDirectorsIds);
-                throw new ValidationException("Invalid film director!");
+            for (Director director : film.getDirectors()) {
+                if (directorStorage.getById(director.getId()).isEmpty()) {
+                    log.error("Режиссер с ID {} не найден", director.getId());
+                    throw new ValidationException("Invalid film director ID: " + director.getId());
+                }
             }
         }
     }
+
 
     public Map<Long, Set<Film>> getFilmLikesData() {
         log.info("Запрос данных о лайках фильмов");

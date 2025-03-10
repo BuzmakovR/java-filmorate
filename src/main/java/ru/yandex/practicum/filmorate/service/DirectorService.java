@@ -1,83 +1,66 @@
 package ru.yandex.practicum.filmorate.service;
 
-
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.storage.impl.repositories.DirectorDbStorage;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
 import java.util.List;
 
-@Service
 @Slf4j
-@RequiredArgsConstructor
+@Service
 public class DirectorService {
-    private final DirectorDbStorage directorStorage;
 
-    /**
-     * Retrieves a director by ID
-     *
-     * @param directorId
-     * @return {@link Director}
-     */
-    public Director getById(Long directorId) {
-        return directorStorage.getById(directorId).orElseThrow(() ->
-                new NotFoundException("Director with ID %d not found".formatted(directorId)));
+    private final DirectorStorage directorStorage;
+
+    @Autowired
+    public DirectorService(@Qualifier("directorDbStorage") DirectorStorage directorStorage) {
+        this.directorStorage = directorStorage;
     }
 
-    /**
-     * Retrieves all directors
-     *
-     * @return {@link List<Director>}
-     */
-    public List<Director> getAll() {
-        return directorStorage.getAll();
+    public Director getDirector(Long directorId) {
+        log.info("Запрос на получение режиссера с ID {}", directorId);
+        return directorStorage.getById(directorId)
+                .orElseThrow(() -> new NotFoundException("Режиссер с ID " + directorId + " не найден"));
     }
 
-    /**
-     * Creates a new director.
-     *
-     * @param director
-     * @return {@link Director}
-     */
-    public Director create(Director director) {
+    public List<Director> getAllDirectors() {
+        log.info("Запрос на получение всех режиссеров");
+        List<Director> directors = directorStorage.getAll();
+        log.debug("Найдено {} режиссеров", directors.size());
+        return directors;
+    }
+
+    public Director addDirector(Director director) {
+        log.info("Добавление нового режиссера: {}", director);
         director.setId(generateId());
-        return directorStorage.create(director);
+        Director addedDirector = directorStorage.create(director);
+        log.info("Режиссер успешно добавлен с ID {}", addedDirector.getId());
+        return addedDirector;
     }
 
-    /**
-     * Updates an existing director.
-     *
-     * @param newDirector
-     * @return {@link Director}
-     * @throws NotFoundException
-     */
-    public Director update(Director newDirector) {
-        log.debug("Checking existence of director with ID {} for updating", newDirector.getId());
-        if (directorStorage.getById(newDirector.getId()).isPresent()) {
-            log.trace("Updating film in storage");
-            return directorStorage.update(newDirector);
+    public Director updateDirector(Director newDirector) {
+        log.info("Обновление режиссера с ID {}", newDirector.getId());
+        if (directorStorage.getById(newDirector.getId()).isEmpty()) {
+            log.error("При обновлении режиссер с ID {} не найден", newDirector.getId());
+            throw new NotFoundException("Режиссер не найден");
         }
-        log.warn("Film with ID {} not found", newDirector.getId());
-        throw new NotFoundException("Film not found!");
+        Director updatedDirector = directorStorage.update(newDirector);
+        log.info("Режиссер с ID {} успешно обновлен", updatedDirector.getId());
+        return updatedDirector;
     }
 
-    /**
-     * Deletes an existing director.
-     *
-     * @param directorId
-     * @throws NotFoundException
-     */
-    public void deleteById(Long directorId) {
-        log.debug("Checking existence of director with ID {} for deleting", directorId);
+    public void deleteDirector(Long directorId) {
+        log.info("Удаление режиссера с ID {}", directorId);
         if (directorStorage.getById(directorId).isEmpty()) {
-            log.warn("Director with ID {} not found", directorId);
-            throw new NotFoundException("Director not found!");
+            log.error("При удалении режиссер с ID {} не найден", directorId);
+            throw new NotFoundException("Режиссер не найден");
         }
-        log.trace("Deleting director in storage");
         directorStorage.deleteById(directorId);
+        log.info("Режиссер с ID {} успешно удален", directorId);
     }
 
     private Long generateId() {
