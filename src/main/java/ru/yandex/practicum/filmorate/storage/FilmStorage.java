@@ -17,6 +17,7 @@ public interface FilmStorage {
 
 	Film delete(Long id);
 
+	Collection<Film> getPopular(Integer count, Long genreId, Integer year);
 	Collection<Film> getPopular(Integer id);
 
 	List<Film> getDirectorFilmSortedByYear(Long directorId);
