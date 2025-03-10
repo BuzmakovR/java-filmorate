@@ -101,11 +101,11 @@ public class FilmService {
 		feedStorage.addEvent(userId, filmId, EventOperation.REMOVE, EventType.LIKE);
 	}
 
-	public Collection<Film> getPopularFilms(Integer count) {
+	public Collection<Film> getPopularFilms(Integer count, Long genreId, Integer year) {
 		if (count < 1) {
 			throw new ValidationException("Значение переданного параметра количество записей должен быть больше 0");
 		}
-		return filmStorage.getPopular(count);
+		return filmStorage.getPopular(count, genreId, year);
 	}
 
 	private void prepareAndValidateFilm(Film film) {

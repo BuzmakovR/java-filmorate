@@ -34,18 +34,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 			"LEFT JOIN genres g ON g.id = fg.genre_id " +
 			"WHERE f.id = ? " +
 			"GROUP BY f.id";
-	private static final String FIND_POPULAR = "SELECT f.*, " +
-			"mr.name mpa_rating_name, " +
-			"LISTAGG(DISTINCT g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id, " +
-			"LISTAGG(DISTINCT g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name, " +
-			"COUNT(DISTINCT fl.user_id) AS like_count " +
-			"FROM films f " +
-			"LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id " +
-			"LEFT JOIN films_genres fg ON fg.film_id = f.id " +
-			"LEFT JOIN genres g ON g.id = fg.genre_id " +
-			"LEFT JOIN films_likes fl ON fl.film_id = f.id " +
-			"GROUP BY f.id " +
-			"ORDER BY like_count DESC LIMIT ?";
 
 	private static final String INSERT_FILM_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
 	private static final String INSERT_FILM_GENRE_QUERY = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
@@ -129,7 +117,33 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 	}
 
 	@Override
-	public Collection<Film> getPopular(Integer count) {
-		return findMany(FIND_POPULAR, count);
+	public Collection<Film> getPopular(Integer count, Long genreId, Integer year) {
+		if (genreId == null && year == null) {
+			return findMany(paramGetPopularQuery(""), count);
+		} else if (genreId != null && year == null) {
+			return findMany(paramGetPopularQuery("WHERE g.id = ?"), genreId, count);
+		} else if (genreId == null && year != null) {
+			return findMany(paramGetPopularQuery("WHERE YEAR (f.release_date) = ?"), year, count);
+		} else {
+			return findMany(paramGetPopularQuery("WHERE g.id = ? AND YEAR (f.release_date) = ?"), genreId, year, count);
+		}
+	}
+
+	private String paramGetPopularQuery(String paramsString) {
+		return String.format("""
+				SELECT f.*,
+				mr.name mpa_rating_name,
+				LISTAGG(DISTINCT g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
+				LISTAGG(DISTINCT g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name,
+				COUNT(DISTINCT fl.user_id) AS like_count
+				FROM films f
+				LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id
+				LEFT JOIN films_genres fg ON fg.film_id = f.id
+				LEFT JOIN genres g ON g.id = fg.genre_id
+				LEFT JOIN films_likes fl ON fl.film_id = f.id
+				%s
+				GROUP BY f.id
+				ORDER BY like_count DESC
+				LIMIT ?""", paramsString);
 	}
 }
