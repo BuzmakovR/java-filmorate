@@ -48,7 +48,7 @@ public class ReviewController {
 		log.info("Отзыв создан c id {}", createdReview.getReviewId());
 		log.debug(createdReview.toString());
 
-		return review;
+		return createdReview;
 	}
 
 	@PutMapping
