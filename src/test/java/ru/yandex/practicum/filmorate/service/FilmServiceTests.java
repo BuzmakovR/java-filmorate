@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -256,10 +258,156 @@ public abstract class FilmServiceTests {
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
-		List<Film> popularFilms = filmService.getPopularFilms(3).stream().toList();
+		List<Film> popularFilms = filmService.getPopularFilms(3, null, null).stream().toList();
 		Assertions.assertEquals(3, popularFilms.size(), "Длина списка популярных фильмов неверная");
 		Assertions.assertEquals(film2, popularFilms.getFirst(), "Последовательность популярности фильмов некорректная");
 		Assertions.assertEquals(film3, popularFilms.get(1), "Последовательность популярности фильмов некорректная");
 		Assertions.assertEquals(film1, popularFilms.get(2), "Последовательность популярности фильмов некорректная");
+	}
+
+	@DisplayName("Популярные фильмы с жанром")
+	@Test
+	void getPopularFilmsWithGenre() {
+		filmService.getFilms()
+				.forEach(film -> filmStorage.delete(film.getId()));
+
+		User user1 = User.builder().login("film-service-getpopular-genre-user-11").email("email@email.ru").build();
+		User user2 = User.builder().login("film-service-getpopular-genre-user-22").email("email@email.ru").build();
+		Film film1 = Film.builder().name("film-11").build();
+		Film film2 = Film.builder().name("film-22").build();
+		Film film3 = Film.builder().name("film-33").build();
+
+		film3.getGenres().add(genreStorage.get(3L));
+		film2.getGenres().add(genreStorage.get(2L));
+		film1.getGenres().add(genreStorage.get(3L));
+
+		try {
+			user1 = userStorage.add(user1);
+			user2 = userStorage.add(user2);
+			film1 = filmService.addFilm(film1);
+			film2 = filmService.addFilm(film2);
+			film3 = filmService.addFilm(film3);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		/*
+		 * 1 фильму - 0 лайков
+		 * 2 фильму - 2 лайков
+		 * 3 фильму - 1 лайков
+		 *
+		 * Результат популярности должен быть:
+		 * 2 фильм должен отсортироваться
+		 * 3 фильм
+		 * 1 фильм
+		 * */
+		try {
+			filmService.addLike(film2.getId(), user1.getId());
+			filmService.addLike(film2.getId(), user2.getId());
+			filmService.addLike(film3.getId(), user2.getId());
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		List<Film> popularFilms = filmService.getPopularFilms(3, 3L, null).stream().toList();
+		Assertions.assertEquals(2, popularFilms.size(), "Длина списка популярных фильмов неверная");
+		Assertions.assertEquals(film3, popularFilms.getFirst(), "Последовательность популярности фильмов некорректная");
+		Assertions.assertEquals(film1, popularFilms.get(1), "Последовательность популярности фильмов некорректная");
+	}
+
+	@DisplayName("Популярные фильмы с годом")
+	@Test
+	void getPopularFilmsWithYear() {
+		filmService.getFilms()
+				.forEach(film -> filmStorage.delete(film.getId()));
+
+		User user1 = User.builder().login("film-service-getpopular-year-user-11").email("email@email.ru").build();
+		User user2 = User.builder().login("film-service-getpopular-year-user-22").email("email@email.ru").build();
+		Film film1 = Film.builder().name("film-11").releaseDate(LocalDate.of(2000, 1, 1)).build();
+		Film film2 = Film.builder().name("film-22").releaseDate(LocalDate.of(2010, 1, 1)).build();
+		Film film3 = Film.builder().name("film-33").releaseDate(LocalDate.of(2000, 1, 1)).build();
+
+		try {
+			user1 = userStorage.add(user1);
+			user2 = userStorage.add(user2);
+			film1 = filmService.addFilm(film1);
+			film2 = filmService.addFilm(film2);
+			film3 = filmService.addFilm(film3);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		/*
+		 * 1 фильму - 0 лайков
+		 * 2 фильму - 2 лайков
+		 * 3 фильму - 1 лайков
+		 *
+		 * Результат популярности должен быть:
+		 * 2 фильм должен отсортироваться
+		 * 3 фильм
+		 * 1 фильм
+		 * */
+		try {
+			filmService.addLike(film2.getId(), user1.getId());
+			filmService.addLike(film2.getId(), user2.getId());
+			filmService.addLike(film3.getId(), user2.getId());
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		List<Film> popularFilms = filmService.getPopularFilms(3, null, 2000).stream().toList();
+		Assertions.assertEquals(2, popularFilms.size(), "Длина списка популярных фильмов неверная");
+		Assertions.assertEquals(film3, popularFilms.getFirst(), "Последовательность популярности фильмов некорректная");
+		Assertions.assertEquals(film1, popularFilms.get(1), "Последовательность популярности фильмов некорректная");
+	}
+
+	@DisplayName("Популярные фильмы с годом и жанром")
+	@Test
+	void getPopularFilmsWithYearAndGenre() {
+		filmService.getFilms()
+				.forEach(film -> filmStorage.delete(film.getId()));
+
+		User user1 = User.builder().login("film-service-getpopular-year-genre-user-11").email("email@email.ru").build();
+		User user2 = User.builder().login("film-service-getpopular-year-genre-user-22").email("email@email.ru").build();
+		Film film1 = Film.builder().name("film-11").releaseDate(LocalDate.of(2000, 1, 1)).build();
+		Film film2 = Film.builder().name("film-22").releaseDate(LocalDate.of(2010, 1, 1)).build();
+		Film film3 = Film.builder().name("film-33").releaseDate(LocalDate.of(2000, 1, 1)).build();
+		Film film4 = Film.builder().name("film-44").releaseDate(LocalDate.of(2010, 1, 1)).build();
+
+		film3.getGenres().add(genreStorage.get(3L));
+		film2.getGenres().add(genreStorage.get(2L));
+		film1.getGenres().add(genreStorage.get(3L));
+		film4.getGenres().add(genreStorage.get(3L));
+
+		try {
+			user1 = userStorage.add(user1);
+			user2 = userStorage.add(user2);
+			film1 = filmService.addFilm(film1);
+			film2 = filmService.addFilm(film2);
+			film3 = filmService.addFilm(film3);
+			film4 = filmService.addFilm(film4);
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		/*
+		 * 1 фильму - 0 лайков
+		 * 2 фильму - 2 лайков
+		 * 3 фильму - 1 лайков
+		 * 4 фильму - 0 лайков
+		 *
+		 * */
+		try {
+			filmService.addLike(film2.getId(), user1.getId());
+			filmService.addLike(film2.getId(), user2.getId());
+			filmService.addLike(film3.getId(), user2.getId());
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		List<Film> popularFilms = filmService.getPopularFilms(3, 3L, 2000).stream().toList();
+		Assertions.assertEquals(2, popularFilms.size(), "Длина списка популярных фильмов неверная");
+		Assertions.assertEquals(film3, popularFilms.getFirst(), "Последовательность популярности фильмов некорректная");
+		Assertions.assertEquals(film1, popularFilms.get(1), "Последовательность популярности фильмов некорректная");
+		popularFilms = filmService.getPopularFilms(3, 2L, 2010).stream().toList();
+		Assertions.assertEquals(1, popularFilms.size(), "Длина списка популярных фильмов неверная");
+		Assertions.assertEquals(film2, popularFilms.getFirst(), "Последовательность популярности фильмов некорректная");
+		popularFilms = filmService.getPopularFilms(3, 3L, 2010).stream().toList();
+		Assertions.assertEquals(1, popularFilms.size(), "Длина списка популярных фильмов неверная");
+		Assertions.assertEquals(film4, popularFilms.getFirst(), "Последовательность популярности фильмов некорректная");
 	}
 }
