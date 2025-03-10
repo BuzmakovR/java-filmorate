@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-	@Autowired
 	@Qualifier("userDbStorage")
 	private final UserStorage userStorage;
 
@@ -29,22 +29,9 @@ public class UserService {
 	private final FriendRequestStorage friendRequestStorage;
 
 	@Qualifier("feedDbStorage")
-	@Autowired
 	private final FeedStorage feedStorage;
 
-	@Autowired
 	private final FilmService filmService;
-
-	@Autowired
-	public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
-					   @Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage,
-					   FilmService filmService,
-					   @Qualifier("feedDbStorage") FeedStorage feedStorage) {
-		this.friendRequestStorage = friendRequestStorage;
-		this.userStorage = userStorage;
-		this.filmService = filmService;
-		this.feedStorage = feedStorage;
-	}
 
 	public Collection<User> getUsers() {
 		return userStorage.getAll();

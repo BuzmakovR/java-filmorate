@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -16,45 +16,26 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class FilmService {
 
-	@Autowired
 	@Qualifier("filmDbStorage")
 	private final FilmStorage filmStorage;
 
-	@Autowired
 	@Qualifier("filmLikeDbStorage")
 	private final FilmLikeStorage filmLikeStorage;
 
-	@Autowired
 	@Qualifier("userDbStorage")
 	private final UserStorage userStorage;
 
-	@Autowired
 	@Qualifier("genreDbStorage")
 	private final GenreStorage genreStorage;
 
-	@Autowired
 	@Qualifier("mpaRatingDbStorage")
 	private final MpaRatingStorage mpaRatingStorage;
 
 	@Qualifier("feedDbStorage")
-	@Autowired
 	private final FeedStorage feedStorage;
-
-	public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-					   @Qualifier("filmLikeDbStorage") FilmLikeStorage filmLikeStorage,
-					   @Qualifier("userDbStorage") UserStorage userStorage,
-					   @Qualifier("genreDbStorage") GenreStorage genreStorage,
-					   @Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage,
-					   @Qualifier("feedDbStorage") FeedStorage feedStorage) {
-		this.filmStorage = filmStorage;
-		this.filmLikeStorage = filmLikeStorage;
-		this.userStorage = userStorage;
-		this.genreStorage = genreStorage;
-		this.mpaRatingStorage = mpaRatingStorage;
-		this.feedStorage = feedStorage;
-	}
 
 	public Collection<Film> getFilms() {
 		return filmStorage.getAll();

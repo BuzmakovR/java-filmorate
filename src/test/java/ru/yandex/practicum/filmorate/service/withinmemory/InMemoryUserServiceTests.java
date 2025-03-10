@@ -24,7 +24,7 @@ public class InMemoryUserServiceTests extends UserServiceTests {
 					new InMemoryMpaRatingStorage(),
 					feedStorage
 			);
-			userService = new UserService(userStorage, friendRequestStorage, filmService, feedStorage);
+			userService = new UserService(userStorage, friendRequestStorage, feedStorage, filmService);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
