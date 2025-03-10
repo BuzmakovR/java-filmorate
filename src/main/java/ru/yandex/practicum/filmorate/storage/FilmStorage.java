@@ -1,8 +1,11 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 public interface FilmStorage {
 
@@ -17,4 +20,8 @@ public interface FilmStorage {
 	Film delete(Long id);
 
 	Collection<Film> getPopular(Integer count, Long genreId, Integer year);
+
+	Map<Integer, List<Genre>> getAllFilmGenres(Collection<Film> films);
+
+	Collection<Film> getCommonFilms(Integer userId, Integer friendId);
 }

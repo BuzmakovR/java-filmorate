@@ -95,4 +95,10 @@ public class FilmController {
 		filmService.deleteLike(filmId, userId);
 	}
 	//endregion
+
+	@GetMapping("/common")
+	public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+		log.debug("Просмотр всех общих фильмов");
+		return filmService.getCommonFilms(userId, friendId);
+	}
 }

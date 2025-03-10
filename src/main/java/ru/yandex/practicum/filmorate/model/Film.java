@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Data
 @Builder
@@ -54,4 +55,14 @@ public class Film {
 	public void clearGenre() {
 		genres.clear();
 	}
+
+	public void setGenres(List<Genre> genres) {
+		this.genres.clear();
+		if (genres != null && !genres.isEmpty()) {
+			this.genres.addAll(genres);
+		}
+	}
+
+
+
 }

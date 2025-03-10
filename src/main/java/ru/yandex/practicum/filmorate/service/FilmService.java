@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.*;
 
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -127,5 +128,27 @@ public class FilmService {
 				)));
 		log.info("filmLikesData: {}", filmLikesData);
 		return filmLikesData;
+	}
+
+	public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
+		Collection<Film> films = filmStorage.getCommonFilms(userId, friendId);
+		log.debug("Общие фильмы до загрузки жанров: {}", films);
+
+		if (films.isEmpty()) {
+			log.warn("Общие фильмы не найдены для пользователей {} и {}", userId, friendId);
+			return films;
+		}
+
+		Map<Integer, List<Genre>> filmGenresMap = filmStorage.getAllFilmGenres(films);
+		log.debug("Загруженные жанры: {}", filmGenresMap);
+
+		films.forEach(film -> {
+			Long filmId = film.getId();
+			log.debug("Фильм {} до добавления жанров: {}", filmId, film);
+			film.setGenres(filmGenresMap.getOrDefault(filmId.intValue(), new ArrayList<>()));
+			log.debug("Фильм {} после добавления жанров: {}", filmId, film);
+		});
+
+		return films;
 	}
 }
