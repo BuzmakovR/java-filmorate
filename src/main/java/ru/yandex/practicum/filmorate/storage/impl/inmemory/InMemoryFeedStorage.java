@@ -19,14 +19,15 @@ public class InMemoryFeedStorage implements FeedStorage {
 
 	@Override
 	public void addEvent(Long userId, Long entityId, EventOperation eventOperation, EventType eventType) {
-		Feed feed = new Feed();
-		feed.setTimestamp(Instant.now().toEpochMilli());
-		feed.setEventOperation(eventOperation);
-		feed.setEventType(eventType);
-		feed.setEventId(getNextId());
-		feed.setUserId(userId);
-		feed.setEntityId(entityId);
-		storage.put(getNextId(), feed);
+		storage.put(getNextId(),
+				Feed.builder()
+						.timestamp(Instant.now().toEpochMilli())
+						.eventOperation(eventOperation)
+						.eventType(eventType)
+						.eventId(getNextId())
+						.userId(userId)
+						.entityId(entityId)
+						.build());
 	}
 
 	@Override

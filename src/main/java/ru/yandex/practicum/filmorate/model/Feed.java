@@ -2,11 +2,13 @@ package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
 import ru.yandex.practicum.filmorate.model.feedResource.EventType;
 
-@Data
+@Getter
+@Builder
 public class Feed {
 	private Long eventId;
 

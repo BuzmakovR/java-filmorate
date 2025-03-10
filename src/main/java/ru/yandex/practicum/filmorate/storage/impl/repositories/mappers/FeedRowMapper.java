@@ -13,13 +13,13 @@ import java.sql.SQLException;
 public class FeedRowMapper implements RowMapper<Feed> {
 	@Override
 	public Feed mapRow(ResultSet resultSet, int rowNum) throws SQLException {
-		Feed feed = new Feed();
-		feed.setEventId(resultSet.getLong("event_id"));
-		feed.setUserId(resultSet.getLong("user_id"));
-		feed.setEntityId(resultSet.getLong("entity_id"));
-		feed.setEventType(EventType.valueOf(resultSet.getString("event_type")));
-		feed.setEventOperation(EventOperation.valueOf(resultSet.getString("event_operation")));
-		feed.setTimestamp(resultSet.getLong("timestamp"));
-		return feed;
+		return Feed.builder()
+				.eventId(resultSet.getLong("event_id"))
+				.userId(resultSet.getLong("user_id"))
+				.entityId(resultSet.getLong("entity_id"))
+				.eventType(EventType.valueOf(resultSet.getString("event_type")))
+				.eventOperation(EventOperation.valueOf(resultSet.getString("event_operation")))
+				.timestamp(resultSet.getLong("timestamp"))
+				.build();
 	}
 }
