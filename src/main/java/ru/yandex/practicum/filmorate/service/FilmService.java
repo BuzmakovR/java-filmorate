@@ -139,7 +139,6 @@ public class FilmService {
                         film.clearGenre();
                         inputGenre.forEach(genre -> film.addGenre(genreStorage.get(genre.getId())));
                     });
-            validateFilmDirector(film);
             film.validate();
             log.debug("Фильм успешно подготовлен: {}", film);
         } catch (ValidationException e) {
@@ -148,11 +147,11 @@ public class FilmService {
         }
     }
 
-    public List<Film> getFilmsByDirectorSorted(Long directorId, String sortBy) {
+    public Collection<Film> getFilmsByDirectorSorted(Long directorId, String sortBy) {
         log.info("Запрос фильмов режиссера {} с сортировкой по {}", directorId, sortBy);
         validateSortBy(sortBy);
 
-        List<Film> films = "year".equalsIgnoreCase(sortBy)
+        Collection<Film> films = "year".equalsIgnoreCase(sortBy)
                 ? filmStorage.getDirectorFilmSortedByYear(directorId)
                 : filmStorage.getDirectorFilmSortedByLike(directorId);
 
@@ -169,12 +168,12 @@ public class FilmService {
     }
 
 
-    private void setAdditionalFieldsForFilms(List<Film> films) {
+    private void setAdditionalFieldsForFilms(Collection<Film> films) {
         log.debug("Установка дополнительных полей для {} фильмов", films.size());
         setDirectorsForFilms(films);
     }
 
-    private void setDirectorsForFilms(List<Film> films) {
+    private void setDirectorsForFilms(Collection<Film> films) {
         log.trace("Установка режиссеров для фильмов");
         Map<Long, Set<Director>> filmsDirectors = directorStorage.getAllFilmsDirectors();
         for (Film film : films) {
@@ -182,19 +181,6 @@ public class FilmService {
             film.setDirectors(directors);
         }
     }
-
-    private void validateFilmDirector(Film film) {
-        log.debug("Валидация режиссеров фильма {}", film.getId());
-        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
-            for (Director director : film.getDirectors()) {
-                if (directorStorage.getById(director.getId()).isEmpty()) {
-                    log.error("Режиссер с ID {} не найден", director.getId());
-                    throw new ValidationException("Invalid film director ID: " + director.getId());
-                }
-            }
-        }
-    }
-
 
     public Map<Long, Set<Film>> getFilmLikesData() {
         log.info("Запрос данных о лайках фильмов");

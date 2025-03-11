@@ -1,17 +1,15 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public interface DirectorStorage {
-    Optional<Director> getById(Long id);
+    Director getById(Long id);
 
-    List<Director> getAll();
+    Collection<Director> getAll();
 
     Director create(Director director);
 
@@ -21,7 +19,4 @@ public interface DirectorStorage {
 
     Map<Long, Set<Director>> getAllFilmsDirectors();
 
-    void saveDirectors(Film film);
-
-    void updateDirectors(Film film);
 }

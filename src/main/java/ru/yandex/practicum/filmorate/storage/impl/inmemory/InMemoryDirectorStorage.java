@@ -1,18 +1,18 @@
 package ru.yandex.practicum.filmorate.storage.impl.inmemory;
 
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 public class InMemoryDirectorStorage implements DirectorStorage {
+
+
     @Override
-    public Optional<Director> getById(Long id) {
-        return Optional.empty();
+    public Director getById(Long id) {
+        return null;
     }
 
     @Override
@@ -40,13 +40,4 @@ public class InMemoryDirectorStorage implements DirectorStorage {
         return Map.of();
     }
 
-    @Override
-    public void saveDirectors(Film film) {
-
-    }
-
-    @Override
-    public void updateDirectors(Film film) {
-
-    }
 }
