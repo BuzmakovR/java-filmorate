@@ -1,12 +1,16 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
+import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -15,26 +19,19 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-	@Autowired
 	@Qualifier("userDbStorage")
 	private final UserStorage userStorage;
 
 	@Qualifier("friendRequestDbStorage")
 	private final FriendRequestStorage friendRequestStorage;
 
-	@Autowired
-	private final FilmService filmService;
+	@Qualifier("feedDbStorage")
+	private final FeedStorage feedStorage;
 
-	@Autowired
-	public UserService(@Qualifier("userDbStorage") UserStorage userStorage,
-					   @Qualifier("friendRequestDbStorage") FriendRequestStorage friendRequestStorage,
-					   FilmService filmService) {
-		this.friendRequestStorage = friendRequestStorage;
-		this.userStorage = userStorage;
-		this.filmService = filmService;
-	}
+	private final FilmService filmService;
 
 	public Collection<User> getUsers() {
 		return userStorage.getAll();
@@ -85,6 +82,7 @@ public class UserService {
 			throw new ValidationException("Идентификаторы пользователей не могут быть равны");
 		}
 		friendRequestStorage.addUserFriend(userId, friendId);
+		feedStorage.addEvent(userId, friendId, EventOperation.ADD, EventType.FRIEND);
 	}
 
 	public void deleteFriend(Long userId, Long friendId) {
@@ -94,6 +92,7 @@ public class UserService {
 		userStorage.get(userId);
 		userStorage.get(friendId);
 		friendRequestStorage.deleteUserFriend(userId, friendId);
+		feedStorage.addEvent(userId, friendId, EventOperation.REMOVE, EventType.FRIEND);
 	}
 
 	public Collection<User> getCommonFriends(Long userId1, Long userId2) {
@@ -141,5 +140,9 @@ public class UserService {
 		}
 		log.info("Рекомендуемые фильмы: {}", recommendedFilms);
 		return recommendedFilms;
+	}
+
+	public Collection<Feed> getFeed(Long userId) {
+		return feedStorage.getFeed(userId);
 	}
 }

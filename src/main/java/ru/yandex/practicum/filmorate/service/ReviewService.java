@@ -7,8 +7,11 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewLike;
-import ru.yandex.practicum.filmorate.storage.ReviewStorage;
+import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
+import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -27,6 +30,9 @@ public class ReviewService {
 	@Qualifier("userDbStorage")
 	private final UserStorage userStorage;
 
+	@Qualifier("feedDbStorage")
+	private final FeedStorage feedStorage;
+
 	public Review getReview(final Long reviewId) {
 		return reviewStorage.get(reviewId);
 	}
@@ -38,30 +44,37 @@ public class ReviewService {
 	public Review addReview(Review review) {
 		filmStorage.get(review.getFilmId());
 		userStorage.get(review.getUserId());
-
-		return reviewStorage.add(review);
+		Review request = reviewStorage.add(review);
+		feedStorage.addEvent(request.getUserId(), request.getReviewId(), EventOperation.ADD, EventType.REVIEW);
+		return request;
 	}
 
 	public Review updateReview(Review newReview) {
 		if (newReview.getReviewId() == null) {
 			throw new ValidationException("Id отзыва должен быть указан");
 		}
-		return reviewStorage.update(newReview);
+		Review request = reviewStorage.update(newReview);
+		feedStorage.addEvent(request.getUserId(), request.getReviewId(), EventOperation.UPDATE, EventType.REVIEW);
+		return request;
 	}
 
 	public Review deleteReview(final Long reviewId) {
+		Review review = getReview(reviewId);
+		feedStorage.addEvent(review.getUserId(), reviewId, EventOperation.REMOVE, EventType.REVIEW);
 		return reviewStorage.delete(reviewId);
 	}
 
 	public void addLike(ReviewLike reviewLike) {
-		reviewStorage.get(reviewLike.getReviewId());
+		Review review = reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.addLike(reviewLike);
+		feedStorage.addEvent(reviewLike.getUserId(), review.getReviewId(), EventOperation.ADD, EventType.LIKE);
 	}
 
 	public void deleteLike(ReviewLike reviewLike) {
-		reviewStorage.get(reviewLike.getReviewId());
+		Review review = reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.deleteLike(reviewLike);
+		feedStorage.addEvent(reviewLike.getUserId(), review.getReviewId(), EventOperation.REMOVE, EventType.LIKE);
 	}
 }

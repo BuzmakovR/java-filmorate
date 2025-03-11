@@ -1,0 +1,14 @@
+package ru.yandex.practicum.filmorate.storage;
+
+import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
+import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+
+import java.util.Collection;
+
+public interface FeedStorage {
+
+	void addEvent(Long userId, Long entityId, EventOperation eventOperation, EventType eventType);
+
+	Collection<Feed> getFeed(Long userId);
+}

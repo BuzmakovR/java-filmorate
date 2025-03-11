@@ -18,7 +18,8 @@ import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.*;
 		FriendRequestDbStorage.class, FriendRequestRowMapper.class, FilmService.class, FilmDbStorage.class,
 		FilmRowMapper.class, FilmLikeDbStorage.class, FilmLikeRowMapper.class,
 		GenreDbStorage.class, GenreRowMapper.class,
-		MpaRatingDbStorage.class, MpaRatingRowMapper.class})
+		MpaRatingDbStorage.class, MpaRatingRowMapper.class,
+		FeedDbStorage.class, FeedRowMapper.class})
 public class DbUserServiceTests extends UserServiceTests {
 
 }
