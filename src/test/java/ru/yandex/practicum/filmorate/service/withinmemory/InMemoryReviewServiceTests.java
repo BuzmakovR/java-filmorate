@@ -4,10 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 import ru.yandex.practicum.filmorate.service.ReviewServiceTests;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFilmLikeStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryReviewStorage;
-import ru.yandex.practicum.filmorate.storage.impl.inmemory.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.impl.inmemory.*;
 
 public class InMemoryReviewServiceTests extends ReviewServiceTests {
 
@@ -18,7 +15,8 @@ public class InMemoryReviewServiceTests extends ReviewServiceTests {
 			filmLikeStorage = new InMemoryFilmLikeStorage();
 			filmStorage = new InMemoryFilmStorage((InMemoryFilmLikeStorage) filmLikeStorage);
 			userStorage = new InMemoryUserStorage();
-			reviewService = new ReviewService(reviewStorage, filmStorage, userStorage);
+			feedStorage = new InMemoryFeedStorage();
+			reviewService = new ReviewService(reviewStorage, filmStorage, userStorage, feedStorage);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}

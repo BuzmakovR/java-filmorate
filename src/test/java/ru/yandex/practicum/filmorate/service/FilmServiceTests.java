@@ -39,6 +39,9 @@ public abstract class FilmServiceTests {
 	@Autowired
 	protected DirectorStorage directorStorage;
 
+	@Autowired
+	protected FeedStorage feedStorage;
+
 	@BeforeEach
 	protected void initStorage() {
 	}

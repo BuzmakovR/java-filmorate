@@ -7,10 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewLike;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FilmLikeStorage;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.ReviewStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
 
 public abstract class ReviewServiceTests {
 
@@ -28,6 +25,8 @@ public abstract class ReviewServiceTests {
 
 	@Autowired
 	protected UserStorage userStorage;
+
+	protected FeedStorage feedStorage;
 
 	protected Review addReviewBase() {
 		Film film = Film.builder()

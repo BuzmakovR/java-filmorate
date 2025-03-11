@@ -15,6 +15,7 @@ public class InMemoryUserServiceTests extends UserServiceTests {
 		try {
 			userStorage = new InMemoryUserStorage();
 			friendRequestStorage = new InMemoryFriendRequestStorage();
+			feedStorage = new InMemoryFeedStorage();
 			filmService = new FilmService(
 					new InMemoryFilmStorage(new InMemoryFilmLikeStorage()),
 					new InMemoryFilmLikeStorage(),
@@ -22,8 +23,10 @@ public class InMemoryUserServiceTests extends UserServiceTests {
 					new InMemoryGenreStorage(),
 					new InMemoryMpaRatingStorage(),
 					new InMemoryDirectorStorage()
+					new InMemoryMpaRatingStorage(),
+					feedStorage
 			);
-			userService = new UserService(userStorage, friendRequestStorage, filmService);
+			userService = new UserService(userStorage, friendRequestStorage, feedStorage, filmService);
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}
