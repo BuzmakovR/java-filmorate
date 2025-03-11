@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.impl.repositories;
 
-import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -12,20 +10,26 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.DirectorRowMapper;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
+@Slf4j
 @Repository("directorDbStorage")
-@RequiredArgsConstructor
-public class DirectorDbStorage implements DirectorStorage {
-    private static final Logger log = LoggerFactory.getLogger(DirectorDbStorage.class);
-    private final JdbcTemplate jdbc;
-    private final DirectorRowMapper mapper;
+public class DirectorDbStorage extends BaseRepository<Director> implements DirectorStorage {
+
+    public DirectorDbStorage(JdbcTemplate jdbc, DirectorRowMapper mapper) {
+        super(jdbc, mapper);
+    }
 
     @Override
     public Optional<Director> getById(Long id) {
+        String sql = "SELECT * FROM directors WHERE id = ?";
         try {
-            String sql = "SELECT * FROM directors WHERE id = ?";
-            return Optional.ofNullable(jdbc.queryForObject(sql, mapper, id));
+            return findOne(sql, id);
         } catch (DataAccessException e) {
             log.warn("Режиссер с ID {} не найден", id);
             return Optional.empty();
@@ -34,34 +38,31 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public List<Director> getAll() {
-        return jdbc.query("SELECT * FROM directors", mapper);
+        return findMany("SELECT * FROM directors");
     }
 
     @Override
     public Director create(Director director) {
-        String insertDirectorQuery = "INSERT INTO directors (id, name) VALUES (?, ?)";
-        jdbc.update(insertDirectorQuery, director.getId(), director.getName());
+        String sql = "INSERT INTO directors (id, name) VALUES (?, ?)";
+        // Так как ID генерируется вручную (см. DirectorService), используем execUpdate
+        execUpdate(sql, director.getId(), director.getName());
         log.info("Created new director with id: {}", director.getId());
         return director;
     }
 
     @Override
     public Director update(Director newDirector) {
-        int rowsUpdated = jdbc.update("UPDATE directors SET name = ? WHERE id = ?",
-                newDirector.getName(), newDirector.getId());
-
-        if (rowsUpdated == 0) {
-            log.warn("Режиссер с ID {} не найден, обновление не выполнено", newDirector.getId());
-            throw new NotFoundException("Режиссер с ID " + newDirector.getId() + " не найден");
-        }
+        String sql = "UPDATE directors SET name = ? WHERE id = ?";
+        update(sql, newDirector.getName(), newDirector.getId());
         log.info("Обновлен режиссер с ID: {}", newDirector.getId());
         return newDirector;
     }
 
     @Override
     public void deleteById(Long id) {
-        int rowsDeleted = jdbc.update("DELETE FROM directors WHERE id = ?", id);
-        if (rowsDeleted == 0) {
+        String sql = "DELETE FROM directors WHERE id = ?";
+        boolean deleted = delete(sql, id);
+        if (!deleted) {
             log.warn("Режиссер с ID {} не найден, удаление не выполнено", id);
             throw new NotFoundException("Режиссер с ID " + id + " не найден");
         }
