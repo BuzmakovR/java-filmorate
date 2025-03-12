@@ -101,4 +101,12 @@ public class FilmController {
 		log.debug("Просмотр всех общих фильмов");
 		return filmService.getCommonFilms(userId, friendId);
 	}
+
+	@GetMapping("/director/{directorId}")
+	public Collection<Film> getFilmsByDirector(
+			@PathVariable Long directorId,
+			@RequestParam(defaultValue = "likes") String sortBy) {
+
+		return filmService.getFilmsByDirectorSorted(directorId, sortBy);
+	}
 }

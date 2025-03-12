@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+
 public interface FilmStorage {
 
 	Collection<Film> getAll();
@@ -24,4 +25,8 @@ public interface FilmStorage {
 	Map<Integer, List<Genre>> getAllFilmGenres(Collection<Film> films);
 
 	Collection<Film> getCommonFilms(Integer userId, Integer friendId);
+
+	Collection<Film> getDirectorFilmSortedByYear(Long directorId);
+
+	Collection<Film> getDirectorFilmSortedByLike(Long directorId);
 }
