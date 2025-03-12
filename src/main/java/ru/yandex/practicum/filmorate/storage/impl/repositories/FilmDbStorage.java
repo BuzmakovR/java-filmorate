@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.storage.FilmDirectorsStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -90,8 +89,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ? WHERE id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
     private static final String DELETE_FILM_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
-    private static final String UPDATE_FILM_DIRECTORS_QUERY = "INSERT INTO film_directors (film_id, director_id) VALUES (?, ?)";
-    private static final String DELETE_FILM_DIRECTORS_QUERY = "DELETE FROM film_directors WHERE film_id = ?";
 
     private final FilmDirectorsStorage filmDirectorsStorage;
 
@@ -159,8 +156,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             );
         });
 
-        Long filmId = newFilm.getId();
-
         if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) {
             filmDirectorsStorage.addFilmDirectors(newFilm);
         }
@@ -207,11 +202,12 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 LIMIT ?""", paramsString);
     }
 
-    public List<Film> getDirectorFilmSortedByLike(Long directorId) {
-        return jdbc.query(GET_DIRECTOR_FILMS_SORTED_BY_LIKES, mapper, directorId);
+    public Collection<Film> getDirectorFilmSortedByLike(Long directorId) {
+        return findMany(GET_DIRECTOR_FILMS_SORTED_BY_LIKES, directorId);
     }
 
-    public List<Film> getDirectorFilmSortedByYear(Long directorId) {
-        return jdbc.query(GET_DIRECTOR_FILMS_SORTED_BY_YEAR, mapper, directorId);
+    public Collection<Film> getDirectorFilmSortedByYear(Long directorId) {
+        return findMany(GET_DIRECTOR_FILMS_SORTED_BY_YEAR, directorId);
     }
+
 }

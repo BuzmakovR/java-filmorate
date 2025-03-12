@@ -34,7 +34,7 @@ public class DirectorService {
 
     public Director addDirector(Director director) {
         log.info("Добавление нового режиссера: {}", director);
-        director.setId(generateId());
+        // Значение id будет сгенерировано БД
         Director addedDirector = directorStorage.create(director);
         log.info("Режиссер успешно добавлен с ID {}", addedDirector.getId());
         return addedDirector;
@@ -51,13 +51,5 @@ public class DirectorService {
         log.info("Удаление режиссера с ID {}", directorId);
         directorStorage.deleteById(directorId);
         log.info("Режиссер с ID {} успешно удален", directorId);
-    }
-
-    private Long generateId() {
-        Long currentId = directorStorage.getAll().stream()
-                .mapToLong(Director::getId)
-                .max()
-                .orElse(0);
-        return ++currentId;
     }
 }

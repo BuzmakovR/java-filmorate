@@ -44,8 +44,9 @@ public class FilmDirectorsDbStorage extends BaseRepository<Object> implements Fi
             log.warn("Попытка обновить режиссёров для фильма без ID");
             throw new IllegalArgumentException("ID фильма должен быть указан");
         }
-        int rowsDeleted = jdbc.update(DELETE_FILM_DIRECTORS_QUERY, film.getId());
-        log.info("Удалены режиссёры ({} записей) для фильма с ID: {}", rowsDeleted, film.getId());
+        boolean deleted = delete(DELETE_FILM_DIRECTORS_QUERY, film.getId());
+        log.info("Режиссёры для фильма с ID: {} удалены успешно: {}", film.getId(), deleted);
         addFilmDirectors(film);
     }
+
 }

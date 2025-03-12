@@ -20,7 +20,7 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
 
     private static final String SELECT_DIRECTOR_BY_ID_QUERY = "SELECT * FROM directors WHERE id = ?";
     private static final String SELECT_ALL_DIRECTORS_QUERY = "SELECT * FROM directors";
-    private static final String INSERT_DIRECTOR_QUERY = "INSERT INTO directors (id, name) VALUES (?, ?)";
+    private static final String INSERT_DIRECTOR_QUERY = "INSERT INTO directors (name) VALUES (?)";
     private static final String UPDATE_DIRECTOR_QUERY = "UPDATE directors SET name = ? WHERE id = ?";
     private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM directors WHERE id = ?";
     private static final String SELECT_ALL_FILM_DIRECTORS_QUERY = """
@@ -47,8 +47,9 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
 
     @Override
     public Director create(Director director) {
-        execUpdate(INSERT_DIRECTOR_QUERY, director.getId(), director.getName());
-        log.info("Создан новый режиссёр с id: {}", director.getId());
+        long id = insert(INSERT_DIRECTOR_QUERY, director.getName());
+        director.setId(id);
+        log.info("Создан новый режиссёр с id: {}", id);
         return director;
     }
 
@@ -67,7 +68,6 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
         }
         log.info("Удалён режиссёр с ID: {}", id);
     }
-
 
     @Override
     public Map<Long, Set<Director>> getAllFilmsDirectors() {

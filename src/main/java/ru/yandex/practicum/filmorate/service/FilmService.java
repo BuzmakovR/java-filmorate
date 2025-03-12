@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
@@ -126,24 +127,16 @@ public class FilmService {
 
     public Collection<Film> getFilmsByDirectorSorted(Long directorId, String sortBy) {
         log.info("Запрос фильмов режиссера {} с сортировкой по {}", directorId, sortBy);
-        validateSortBy(sortBy);
-
-        Collection<Film> films = "year".equalsIgnoreCase(sortBy)
-                ? filmStorage.getDirectorFilmSortedByYear(directorId)
-                : filmStorage.getDirectorFilmSortedByLike(directorId);
+        DirectorSortBy sortEnum = DirectorSortBy.fromString(sortBy);
+        Collection<Film> films = switch (sortEnum) {
+            case YEAR -> filmStorage.getDirectorFilmSortedByYear(directorId);
+            case LIKES -> filmStorage.getDirectorFilmSortedByLike(directorId);
+        };
 
         log.debug("Найдено {} фильмов, отсортированных по {}", films.size(), sortBy);
         setAdditionalFieldsForFilms(films);
         return films;
     }
-
-    private void validateSortBy(String sortBy) {
-        if (!"year".equalsIgnoreCase(sortBy) && !"likes".equalsIgnoreCase(sortBy)) {
-            log.error("Некорректный параметр сортировки: {}", sortBy);
-            throw new IllegalArgumentException("Invalid sortBy parameter");
-        }
-    }
-
 
     private void setAdditionalFieldsForFilms(Collection<Film> films) {
         log.debug("Установка дополнительных полей для {} фильмов", films.size());
