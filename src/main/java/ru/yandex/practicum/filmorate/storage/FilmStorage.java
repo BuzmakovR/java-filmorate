@@ -10,25 +10,25 @@ import java.util.Map;
 
 public interface FilmStorage {
 
-	Collection<Film> getAll();
+    Collection<Film> getAll();
 
-	Film get(Long id);
+    Film get(Long id);
 
-	Film add(Film film);
+    Film add(Film film);
 
-	Film update(Film newFilm);
+    Film update(Film newFilm);
 
-	Film delete(Long id);
+    Film delete(Long id);
 
-	Collection<Film> getPopular(Integer count, Long genreId, Integer year);
+    Collection<Film> getPopular(Integer count, Long genreId, Integer year);
 
-	Map<Integer, List<Genre>> getAllFilmGenres(Collection<Film> films);
+    Map<Integer, List<Genre>> getAllFilmGenres(Collection<Film> films);
 
-	Collection<Film> getCommonFilms(Integer userId, Integer friendId);
+    Collection<Film> getCommonFilms(Integer userId, Integer friendId);
 
-	Collection<Film> getDirectorFilmSortedByYear(Long directorId);
+    Collection<Film> getDirectorFilmSortedByYear(Long directorId);
 
-	Collection<Film> getDirectorFilmSortedByLike(Long directorId);
+    Collection<Film> getDirectorFilmSortedByLike(Long directorId);
 
-	Collection<Film> searchFilms(String query);
+    Collection<Film> searchFilms(String query, List<String> searchFields);
 }

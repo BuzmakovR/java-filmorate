@@ -20,57 +20,56 @@ import java.util.Set;
 @EqualsAndHashCode(of = {"name", "releaseDate", "mpa"})
 public class Film {
 
-	private Long id;
+    private Long id;
 
-	@NotBlank(message = "Наименование фильма должно быть заполнено")
-	private String name;
+    @NotBlank(message = "Наименование фильма должно быть заполнено")
+    private String name;
 
-	@Size(max = 200, message = "Максимальная длина описания фильма — 200 символов")
-	private String description;
+    @Size(max = 200, message = "Максимальная длина описания фильма — 200 символов")
+    private String description;
 
-	private LocalDate releaseDate;
+    private LocalDate releaseDate;
 
-	@Positive(message = "Продолжительность фильма должна быть положительным числом")
-	private Integer duration;
+    @Positive(message = "Продолжительность фильма должна быть положительным числом")
+    private Integer duration;
 
-	private MpaRating mpa;
+    private MpaRating mpa;
 
-	private final Collection<Genre> genres = new ArrayList<>();
+    private final Collection<Genre> genres = new ArrayList<>();
 
-	@Builder.Default
-	private Set<Director> directors = new HashSet<>();
+    @Builder.Default
+    private Set<Director> directors = new HashSet<>();
 
-	private Integer likes;
+    private Integer likes;
 
-	private Integer releaseYear;
+    private Integer releaseYear;
 
-	public void validate() {
-		if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
-			throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
-		}
-	}
+    public void validate() {
+        if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
+            throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
+        }
+    }
 
-	public void addGenre(Genre genre) {
-		if (!genres.contains(genre)) {
-			genres.add(genre);
-		}
-	}
+    public void addGenre(Genre genre) {
+        if (!genres.contains(genre)) {
+            genres.add(genre);
+        }
+    }
 
-	public void removeGenre(Genre genre) {
-		genres.remove(genre);
-	}
+    public void removeGenre(Genre genre) {
+        genres.remove(genre);
+    }
 
-	public void clearGenre() {
-		genres.clear();
-	}
+    public void clearGenre() {
+        genres.clear();
+    }
 
-	public void setGenres(Collection<Genre> genres) {
-		this.genres.clear();
-		if (genres != null && !genres.isEmpty()) {
-			this.genres.addAll(genres);
-		}
-	}
-
+    public void setGenres(Collection<Genre> genres) {
+        this.genres.clear();
+        if (genres != null && !genres.isEmpty()) {
+            this.genres.addAll(genres);
+        }
+    }
 
 
 }

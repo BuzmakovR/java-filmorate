@@ -15,24 +15,24 @@ import java.time.LocalDate;
 @EqualsAndHashCode(of = {"id", "login"})
 public class User {
 
-	private Long id;
+    private Long id;
 
-	@Email
-	@NotBlank(message = "Email пользователя должен быть заполнен")
-	private String email;
+    @Email
+    @NotBlank(message = "Email пользователя должен быть заполнен")
+    private String email;
 
-	@NotBlank(message = "Логин пользователя должен быть заполнен")
-	private String login;
+    @NotBlank(message = "Логин пользователя должен быть заполнен")
+    private String login;
 
-	private String name;
+    private String name;
 
-	@PastOrPresent(message = "Дата рождения пользователя не может быть в будущем")
-	private LocalDate birthday;
+    @PastOrPresent(message = "Дата рождения пользователя не может быть в будущем")
+    private LocalDate birthday;
 
-	public void validate() {
-		if (getLogin() == null || getLogin().isBlank() || getLogin().contains(" ")) {
-			throw new ValidationException("Логин пользователя не может быть пустым и содержать пробелы");
-		}
-	}
+    public void validate() {
+        if (getLogin() == null || getLogin().isBlank() || getLogin().contains(" ")) {
+            throw new ValidationException("Логин пользователя не может быть пустым и содержать пробелы");
+        }
+    }
 
 }

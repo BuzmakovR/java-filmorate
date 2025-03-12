@@ -9,10 +9,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(exclude = {"isLike"})
 public class ReviewLike {
 
-	final Long reviewId;
+    final Long reviewId;
 
-	final Long userId;
+    final Long userId;
 
-	@Builder.Default
-	final boolean isLike = true;
+    @Builder.Default
+    final boolean isLike = true;
 }

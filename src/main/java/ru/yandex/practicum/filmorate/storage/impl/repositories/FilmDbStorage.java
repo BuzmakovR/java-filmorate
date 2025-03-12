@@ -12,12 +12,7 @@ import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmDirectorsStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Repository("filmDbStorage")
@@ -32,7 +27,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "LEFT JOIN films_genres fg ON fg.film_id = f.id " +
             "LEFT JOIN genres g ON g.id = fg.genre_id " +
             "GROUP BY f.id";
-
     private static final String FIND_BY_ID_QUERY = "SELECT f.*, " +
             "LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id, " +
             "LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name, " +
@@ -43,7 +37,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "LEFT JOIN genres g ON g.id = fg.genre_id " +
             "WHERE f.id = ? " +
             "GROUP BY f.id";
-
     private static final String GET_COMMON_FILMS = "SELECT f.id, f.name, f.description, f.release_date, " +
             "f.duration, f.mpa_rating_id, m.name AS mpa_rating_name, " +
             "STRING_AGG(g.id, ',') AS genre_id, STRING_AGG(g.name, ',') AS genre_name " +
@@ -56,7 +49,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "WHERE l1.user_id = ? AND l2.user_id = ? " +
             "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, m.name " +
             "ORDER BY (SELECT COUNT(*) FROM films_likes fl WHERE fl.film_id = f.id) DESC";
-
     private static final String GET_DIRECTOR_FILMS_SORTED_BY_YEAR = """
                 SELECT f.*,
                 EXTRACT(YEAR FROM CAST(f.release_date AS DATE)) AS release_year,
@@ -76,7 +68,6 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 GROUP BY f.id, release_year, mr.id, mr.name
                 ORDER BY release_year ASC
             """;
-
     private static final String GET_DIRECTOR_FILMS_SORTED_BY_LIKES = """
                 SELECT f.*,
                 fl.likes_count,
@@ -103,13 +94,57 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             """;
     private static final String SEARCH_BY_TITLE_QUERY =
             "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, " +
-                    "mr.name AS mpa_rating_name, COUNT(DISTINCT fl.user_id) AS like_count " +
+                    "mr.name AS mpa_rating_name, COUNT(DISTINCT fl.user_id) AS like_count, " +
+                    "GROUP_CONCAT(DISTINCT fg.genre_id) AS genre_id, " +
+                    "GROUP_CONCAT(DISTINCT g.name) AS genre_name, " +
+                    "GROUP_CONCAT(DISTINCT fd.director_id) AS director_id, " +
+                    "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
                     "FROM films f " +
                     "LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id " +
                     "LEFT JOIN films_likes fl ON fl.film_id = f.id " +
-                    "WHERE f.name ILIKE ? " +
+                    "LEFT JOIN films_genres fg ON fg.film_id = f.id " +
+                    "LEFT JOIN genres g ON g.id = fg.genre_id " +
+                    "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
+                    "LEFT JOIN directors d ON d.id = fd.director_id " +
+                    "WHERE LOWER(f.name) LIKE LOWER(CONCAT('%', ?, '%')) " +
                     "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, mr.name " +
                     "ORDER BY like_count DESC";
+    private static final String SEARCH_BY_DIRECTOR_QUERY =
+            "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, " +
+                    "mr.name AS mpa_rating_name, COUNT(DISTINCT fl.user_id) AS like_count, " +
+                    "GROUP_CONCAT(DISTINCT fg.genre_id) AS genre_id, " +
+                    "GROUP_CONCAT(DISTINCT g.name) AS genre_name, " +
+                    "GROUP_CONCAT(DISTINCT fd.director_id) AS director_id, " +
+                    "GROUP_CONCAT(DISTINCT d.name) AS director_name " +
+                    "FROM films f " +
+                    "LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id " +
+                    "LEFT JOIN films_likes fl ON fl.film_id = f.id " +
+                    "LEFT JOIN films_genres fg ON fg.film_id = f.id " +
+                    "LEFT JOIN genres g ON g.id = fg.genre_id " +
+                    "JOIN film_directors fd ON fd.film_id = f.id " +
+                    "JOIN directors d ON d.id = fd.director_id " +
+                    "WHERE LOWER(d.name) LIKE LOWER(CONCAT('%', ?, '%')) " +
+                    "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, mr.name " +
+                    "ORDER BY like_count DESC";
+    private static final String SEARCH_BY_TITLE_AND_DIRECTOR_QUERY = """
+                SELECT f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id,
+                       mr.name AS mpa_rating_name,
+                       COUNT(DISTINCT fl.user_id) AS like_count,
+                       LISTAGG(fg.genre_id, ',') WITHIN GROUP (ORDER BY fg.genre_id) AS genre_id,
+                       LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.name) AS genre_name,
+                       LISTAGG(fd.director_id, ',') WITHIN GROUP (ORDER BY fd.director_id) AS director_id,
+                       LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.name) AS director_name
+                FROM films f
+                LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id
+                LEFT JOIN films_likes fl ON fl.film_id = f.id
+                LEFT JOIN film_directors fd ON fd.film_id = f.id
+                LEFT JOIN directors d ON d.id = fd.director_id
+                LEFT JOIN films_genres fg ON fg.film_id = f.id
+                LEFT JOIN genres g ON g.id = fg.genre_id
+                WHERE LOWER(f.name) LIKE LOWER(?) OR LOWER(d.name) LIKE LOWER(?)
+                GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, mr.name
+                ORDER BY like_count DESC
+            """;
     private static final String INSERT_FILM_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
     private static final String INSERT_FILM_GENRE_QUERY = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ? WHERE id = ?";
@@ -159,6 +194,12 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                     genre.getId()
             );
         });
+
+        if (film.getDirectors() != null && !film.getDirectors().isEmpty()) {
+            filmDirectorsStorage.addFilmDirectors(film);
+        }
+
+        log.info("Фильм добавлен с ID: {}", film.getId());
         return film;
     }
 
@@ -276,11 +317,21 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> searchFilms(String query) {
+    public Collection<Film> searchFilms(String query, List<String> searchFields) {
         if (query == null) {
             throw new IllegalArgumentException("Параметр 'query' не может быть null");
         }
         String searchPattern = "%" + query + "%";
-        return findMany(SEARCH_BY_TITLE_QUERY, searchPattern);
+
+        if (searchFields.contains("title") && searchFields.contains("director")) {
+            return findMany(SEARCH_BY_TITLE_AND_DIRECTOR_QUERY, searchPattern, searchPattern);
+        } else if (searchFields.contains("director")) {
+            return findMany(SEARCH_BY_DIRECTOR_QUERY, searchPattern);
+        } else if (searchFields.contains("title")) {
+            return findMany(SEARCH_BY_TITLE_QUERY, searchPattern);
+        } else {
+            throw new IllegalArgumentException("Некорректные поля поиска: " + searchFields);
+        }
     }
 }
+

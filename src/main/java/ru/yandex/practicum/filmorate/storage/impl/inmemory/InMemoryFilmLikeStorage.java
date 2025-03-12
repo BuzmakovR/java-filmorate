@@ -10,46 +10,46 @@ import java.util.*;
 @Component("inMemoryFilmLikeStorage")
 @RequiredArgsConstructor
 public class InMemoryFilmLikeStorage implements FilmLikeStorage {
-	private final Set<FilmLike> likes = new HashSet<>();
+    private final Set<FilmLike> likes = new HashSet<>();
 
-	@Override
-	public Collection<Long> getFilmLikes(Long filmId) {
-		return likes.stream()
-				.filter(filmLike -> Objects.equals(filmLike.getFilmId(), filmId))
-				.map(FilmLike::getUserId)
-				.toList();
-	}
+    @Override
+    public Collection<Long> getFilmLikes(Long filmId) {
+        return likes.stream()
+                .filter(filmLike -> Objects.equals(filmLike.getFilmId(), filmId))
+                .map(FilmLike::getUserId)
+                .toList();
+    }
 
-	@Override
-	public void addFilmLike(Long filmId, Long userId) {
-		likes.add(FilmLike.builder()
-				.filmId(filmId)
-				.userId(userId)
-				.build());
-	}
+    @Override
+    public void addFilmLike(Long filmId, Long userId) {
+        likes.add(FilmLike.builder()
+                .filmId(filmId)
+                .userId(userId)
+                .build());
+    }
 
-	@Override
-	public void deleteFilmLike(Long filmId, Long userId) {
-		likes.remove(FilmLike.builder()
-				.filmId(filmId)
-				.userId(userId)
-				.build());
-	}
+    @Override
+    public void deleteFilmLike(Long filmId, Long userId) {
+        likes.remove(FilmLike.builder()
+                .filmId(filmId)
+                .userId(userId)
+                .build());
+    }
 
-	@Override
-	public Map<Long, Set<Long>> getAllLikes() {
-		Map<Long, Set<Long>> likesMap = new HashMap<>();
-		for (FilmLike like : likes) {
-			likesMap.computeIfAbsent(like.getUserId(), k -> new HashSet<>()).add(like.getFilmId());
-		}
-		return likesMap;
-	}
+    @Override
+    public Map<Long, Set<Long>> getAllLikes() {
+        Map<Long, Set<Long>> likesMap = new HashMap<>();
+        for (FilmLike like : likes) {
+            likesMap.computeIfAbsent(like.getUserId(), k -> new HashSet<>()).add(like.getFilmId());
+        }
+        return likesMap;
+    }
 
-	@Override
-	public void deleteAllLikesForFilm(Long filmId) {
-		likes.stream()
-				.filter(filmLike -> Objects.equals(filmLike.getFilmId(), filmId))
-				.toList()
-				.forEach(likes::remove);
-	}
+    @Override
+    public void deleteAllLikesForFilm(Long filmId) {
+        likes.stream()
+                .filter(filmLike -> Objects.equals(filmLike.getFilmId(), filmId))
+                .toList()
+                .forEach(likes::remove);
+    }
 }

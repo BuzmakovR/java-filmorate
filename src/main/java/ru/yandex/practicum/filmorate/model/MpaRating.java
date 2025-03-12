@@ -10,8 +10,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = {"id"})
 public class MpaRating {
 
-	private Long id;
+    private Long id;
 
-	@NotBlank(message = "Наименование рейтинга должно быть заполнено")
-	private String name;
+    @NotBlank(message = "Наименование рейтинга должно быть заполнено")
+    private String name;
 }

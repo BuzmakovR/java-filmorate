@@ -17,96 +17,105 @@ import java.util.Collection;
 @RequestMapping("/films")
 public class FilmController {
 
-	@Autowired
-	private final FilmService filmService;
+    @Autowired
+    private final FilmService filmService;
 
-	//region FILM
-	@GetMapping
-	public Collection<Film> findAll() {
-		log.info("Запрос на получение фильмов");
+    //region FILM
+    @GetMapping
+    public Collection<Film> findAll() {
+        log.info("Запрос на получение фильмов");
 
-		Collection<Film> filmCollection = filmService.getFilms();
+        Collection<Film> filmCollection = filmService.getFilms();
 
-		log.debug("Список фильмов: {}", filmCollection);
+        log.debug("Список фильмов: {}", filmCollection);
 
-		return filmCollection;
-	}
+        return filmCollection;
+    }
 
-	@GetMapping("/{id}")
-	public Film get(@PathVariable("id") long id) {
-		log.info("Запрос на получение фильма с ID: {}", id);
+    @GetMapping("/{id}")
+    public Film get(@PathVariable("id") long id) {
+        log.info("Запрос на получение фильма с ID: {}", id);
 
-		Film film = filmService.getFilm(id);
+        Film film = filmService.getFilm(id);
 
-		log.debug("Полученный фильм: {}", film);
+        log.debug("Полученный фильм: {}", film);
 
-		return film;
-	}
+        return film;
+    }
 
-	@PostMapping
-	@ResponseStatus(HttpStatus.CREATED)
-	public Film create(@Valid @RequestBody Film film) {
-		log.info("Запрос на создание фильма");
-		log.debug(film.toString());
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Film create(@Valid @RequestBody Film film) {
+        log.info("Запрос на создание фильма");
+        log.debug(film.toString());
 
-		Film createdFilm = filmService.addFilm(film);
+        Film createdFilm = filmService.addFilm(film);
 
-		log.info("Фильм создан c id {}", createdFilm.getId());
-		log.debug(createdFilm.toString());
+        log.info("Фильм создан c id {}", createdFilm.getId());
+        log.debug(createdFilm.toString());
 
-		return film;
-	}
+        return film;
+    }
 
-	@PutMapping
-	public Film update(@Valid @RequestBody Film newFilm) {
-		log.info("Запрос на обновление фильма");
-		log.debug(newFilm.toString());
+    @PutMapping
+    public Film update(@Valid @RequestBody Film newFilm) {
+        log.info("Запрос на обновление фильма");
+        log.debug(newFilm.toString());
 
-		Film updatedFilm = filmService.updateFilm(newFilm);
+        Film updatedFilm = filmService.updateFilm(newFilm);
 
-		log.info("Фильм обновлен");
-		log.debug(updatedFilm.toString());
+        log.info("Фильм обновлен");
+        log.debug(updatedFilm.toString());
 
-		return updatedFilm;
-	}
-	//endregion
+        return updatedFilm;
+    }
+    //endregion
 
-	@DeleteMapping("/{id}")
-	public Film delete(@PathVariable("id") long filmId) {
-		return filmService.deleteFilm(filmId);
-	}
+    @DeleteMapping("/{id}")
+    public Film delete(@PathVariable("id") long filmId) {
+        return filmService.deleteFilm(filmId);
+    }
 
-	//region FILM-LIKE
-	@GetMapping("/popular")
-	public Collection<Film> popular(@RequestParam(name = "count", defaultValue = "10") int count,
-									@RequestParam(name = "genreId", required = false) Long genreId,
-									@RequestParam(name = "year", required = false) Integer year) {
-		return filmService.getPopularFilms(count, genreId, year);
-	}
+    //region FILM-LIKE
+    @GetMapping("/popular")
+    public Collection<Film> popular(@RequestParam(name = "count", defaultValue = "10") int count,
+                                    @RequestParam(name = "genreId", required = false) Long genreId,
+                                    @RequestParam(name = "year", required = false) Integer year) {
+        return filmService.getPopularFilms(count, genreId, year);
+    }
 
-	@PutMapping("/{id}/like/{userId}")
-	public void addLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
-		log.info("Пользователь с id {} лайкает фильм {}", userId, filmId);
-		filmService.addLike(filmId, userId);
-	}
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
+        log.info("Пользователь с id {} лайкает фильм {}", userId, filmId);
+        filmService.addLike(filmId, userId);
+    }
 
-	@DeleteMapping("/{id}/like/{userId}")
-	public void deleteLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
-		filmService.deleteLike(filmId, userId);
-	}
-	//endregion
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
+        filmService.deleteLike(filmId, userId);
+    }
+    //endregion
 
-	@GetMapping("/common")
-	public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
-		log.debug("Просмотр всех общих фильмов");
-		return filmService.getCommonFilms(userId, friendId);
-	}
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        log.debug("Просмотр всех общих фильмов");
+        return filmService.getCommonFilms(userId, friendId);
+    }
 
-	@GetMapping("/director/{directorId}")
-	public Collection<Film> getFilmsByDirector(
-			@PathVariable Long directorId,
-			@RequestParam(defaultValue = "likes") String sortBy) {
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getFilmsByDirector(
+            @PathVariable Long directorId,
+            @RequestParam(defaultValue = "likes") String sortBy) {
 
-		return filmService.getFilmsByDirectorSorted(directorId, sortBy);
-	}
+        return filmService.getFilmsByDirectorSorted(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> searchFilms(@RequestParam String query,
+                                        @RequestParam(defaultValue = "title") String by) {
+        log.info("Запрос на поиск фильмов: query={}, by={}", query, by);
+        Collection<Film> films = filmService.searchFilms(query, by);
+        log.debug("Найденные фильмы: {}", films);
+        return films;
+    }
 }

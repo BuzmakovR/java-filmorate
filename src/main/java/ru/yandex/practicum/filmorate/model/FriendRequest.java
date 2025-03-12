@@ -9,10 +9,10 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(exclude = "isConfirmed")
 public class FriendRequest {
 
-	final Long userId;
+    final Long userId;
 
-	final Long friendId;
+    final Long friendId;
 
-	@Builder.Default
-	boolean isConfirmed = false;
+    @Builder.Default
+    boolean isConfirmed = false;
 }

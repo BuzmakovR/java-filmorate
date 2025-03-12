@@ -15,32 +15,32 @@ import java.util.Map;
 @Component("inMemoryFeedStorage")
 public class InMemoryFeedStorage implements FeedStorage {
 
-	Map<Long, Feed> storage = new HashMap<>();
+    Map<Long, Feed> storage = new HashMap<>();
 
-	@Override
-	public void addEvent(Long userId, Long entityId, EventOperation eventOperation, EventType eventType) {
-		storage.put(getNextId(),
-				Feed.builder()
-						.timestamp(Instant.now().toEpochMilli())
-						.eventOperation(eventOperation)
-						.eventType(eventType)
-						.eventId(getNextId())
-						.userId(userId)
-						.entityId(entityId)
-						.build());
-	}
+    @Override
+    public void addEvent(Long userId, Long entityId, EventOperation eventOperation, EventType eventType) {
+        storage.put(getNextId(),
+                Feed.builder()
+                        .timestamp(Instant.now().toEpochMilli())
+                        .eventOperation(eventOperation)
+                        .eventType(eventType)
+                        .eventId(getNextId())
+                        .userId(userId)
+                        .entityId(entityId)
+                        .build());
+    }
 
-	@Override
-	public Collection<Feed> getFeed(Long userId) {
-		return List.copyOf(storage.values());
-	}
+    @Override
+    public Collection<Feed> getFeed(Long userId) {
+        return List.copyOf(storage.values());
+    }
 
-	private long getNextId() {
-		long currentMaxId = storage.keySet()
-				.stream()
-				.mapToLong(id -> id)
-				.max()
-				.orElse(0);
-		return ++currentMaxId;
-	}
+    private long getNextId() {
+        long currentMaxId = storage.keySet()
+                .stream()
+                .mapToLong(id -> id)
+                .max()
+                .orElse(0);
+        return ++currentMaxId;
+    }
 }

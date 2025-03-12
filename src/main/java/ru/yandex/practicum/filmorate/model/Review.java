@@ -15,39 +15,39 @@ import java.util.Set;
 @Builder
 public class Review {
 
-	private Long reviewId;
+    private Long reviewId;
 
-	@NonNull
-	private Long filmId;
+    @NonNull
+    private Long filmId;
 
-	@NonNull
-	private Long userId;
+    @NonNull
+    private Long userId;
 
-	@NonNull
-	@JsonProperty("isPositive")
-	private Boolean isPositive;
+    @NonNull
+    @JsonProperty("isPositive")
+    private Boolean isPositive;
 
-	@NotBlank
-	private String content;
+    @NotBlank
+    private String content;
 
-	@JsonIgnore
-	private final Set<ReviewLike> reviewLikes = new HashSet<>();
+    @JsonIgnore
+    private final Set<ReviewLike> reviewLikes = new HashSet<>();
 
-	public void addReviewLike(ReviewLike reviewLike) {
-		reviewLikes.remove(reviewLike);
-		reviewLikes.add(reviewLike);
-	}
+    public void addReviewLike(ReviewLike reviewLike) {
+        reviewLikes.remove(reviewLike);
+        reviewLikes.add(reviewLike);
+    }
 
-	public void deleteReviewLike(ReviewLike reviewLike) {
-		reviewLikes.remove(reviewLike);
-	}
+    public void deleteReviewLike(ReviewLike reviewLike) {
+        reviewLikes.remove(reviewLike);
+    }
 
-	@JsonGetter("useful")
-	public int getUseful() {
-		int useful = 0;
-		for (ReviewLike reviewLike : reviewLikes) {
-			useful += (reviewLike.isLike ? 1 : -1);
-		}
-		return useful;
-	}
+    @JsonGetter("useful")
+    public int getUseful() {
+        int useful = 0;
+        for (ReviewLike reviewLike : reviewLikes) {
+            useful += (reviewLike.isLike ? 1 : -1);
+        }
+        return useful;
+    }
 }

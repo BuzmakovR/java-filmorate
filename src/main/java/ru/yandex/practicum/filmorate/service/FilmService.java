@@ -173,4 +173,25 @@ public class FilmService {
 
         return films;
     }
+
+    public Collection<Film> searchFilms(String query, String by) {
+        log.info("Поиск фильмов по запросу: query={}, by={}", query, by);
+        if (query == null || query.isBlank()) {
+            throw new ValidationException("Параметр 'query' не может быть пустым");
+        }
+        if (by == null || by.isBlank()) {
+            throw new ValidationException("Параметр 'by' не может быть пустым");
+        }
+
+        List<String> searchFields = Arrays.stream(by.split(","))
+                .map(String::trim)
+                .filter(field -> field.equalsIgnoreCase("title") ||
+                        field.equalsIgnoreCase("director"))
+                .toList();
+
+        if (searchFields.isEmpty()) {
+            throw new ValidationException("Параметр 'by' должен содержать 'title' и/или 'director'");
+        }
+        return filmStorage.searchFilms(query, searchFields);
+    }
 }

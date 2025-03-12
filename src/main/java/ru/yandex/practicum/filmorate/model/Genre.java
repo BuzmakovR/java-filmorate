@@ -10,8 +10,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(of = {"id"})
 public class Genre {
 
-	private Long id;
+    private Long id;
 
-	@NotBlank(message = "Наименование жанра должно быть заполнено")
-	private String name;
+    @NotBlank(message = "Наименование жанра должно быть заполнено")
+    private String name;
 }
