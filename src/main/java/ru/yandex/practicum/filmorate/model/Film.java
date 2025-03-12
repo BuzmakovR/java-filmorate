@@ -63,4 +63,14 @@ public class Film {
 	public void clearGenre() {
 		genres.clear();
 	}
+
+	public void setGenres(Collection<Genre> genres) {
+		this.genres.clear();
+		if (genres != null && !genres.isEmpty()) {
+			this.genres.addAll(genres);
+		}
+	}
+
+
+
 }

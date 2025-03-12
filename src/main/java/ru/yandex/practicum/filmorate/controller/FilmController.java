@@ -96,6 +96,12 @@ public class FilmController {
 	}
 	//endregion
 
+	@GetMapping("/common")
+	public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+		log.debug("Просмотр всех общих фильмов");
+		return filmService.getCommonFilms(userId, friendId);
+	}
+
 	@GetMapping("/director/{directorId}")
 	public Collection<Film> getFilmsByDirector(
 			@PathVariable Long directorId,

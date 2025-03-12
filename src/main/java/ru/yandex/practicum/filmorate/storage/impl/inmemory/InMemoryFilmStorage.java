@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
@@ -80,6 +81,16 @@ public class InMemoryFilmStorage implements FilmStorage {
 						Comparator.comparing(film -> inMemoryFilmLikeStorage.getFilmLikes(film.getId()).size())))
 				.limit(count)
 				.toList();
+	}
+
+	@Override
+	public Map<Integer, List<Genre>> getAllFilmGenres(Collection<Film> films) {
+		return Map.of();
+	}
+
+	@Override
+	public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
+		return List.of();
 	}
 
 	@Override

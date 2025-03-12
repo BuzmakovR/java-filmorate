@@ -7,11 +7,16 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.InternalServerException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmDirectorsStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -27,6 +32,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "LEFT JOIN films_genres fg ON fg.film_id = f.id " +
             "LEFT JOIN genres g ON g.id = fg.genre_id " +
             "GROUP BY f.id";
+
     private static final String FIND_BY_ID_QUERY = "SELECT f.*, " +
             "LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id, " +
             "LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name, " +
@@ -37,6 +43,39 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
             "LEFT JOIN genres g ON g.id = fg.genre_id " +
             "WHERE f.id = ? " +
             "GROUP BY f.id";
+
+    private static final String GET_COMMON_FILMS = "SELECT f.id, f.name, f.description, f.release_date, " +
+            "f.duration, f.mpa_rating_id, m.name AS mpa_rating_name, " +
+            "STRING_AGG(g.id, ',') AS genre_id, STRING_AGG(g.name, ',') AS genre_name " +
+            "FROM films f " +
+            "JOIN mpa_ratings m ON f.mpa_rating_id = m.id " +
+            "JOIN films_likes l1 ON f.id = l1.film_id " +
+            "JOIN films_likes l2 ON f.id = l2.film_id " +
+            "LEFT JOIN films_genres fg ON f.id = fg.film_id " +
+            "LEFT JOIN genres g ON fg.genre_id = g.id " +
+            "WHERE l1.user_id = ? AND l2.user_id = ? " +
+            "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, m.name " +
+            "ORDER BY (SELECT COUNT(*) FROM films_likes fl WHERE fl.film_id = f.id) DESC";
+
+    private static final String GET_DIRECTOR_FILMS_SORTED_BY_YEAR = """
+                SELECT f.*,
+                EXTRACT(YEAR FROM CAST(f.release_date AS DATE)) AS release_year,
+                mr.id AS mpa_rating_id,
+                mr.name AS mpa_rating_name,
+                LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
+                LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name
+                FROM films f
+                LEFT JOIN mpa_ratings mr ON f.mpa_rating_id = mr.id
+                LEFT JOIN films_genres fg ON fg.film_id = f.id
+                LEFT JOIN genres g ON g.id = fg.genre_id
+                WHERE f.id IN (
+                    SELECT film_id
+                    FROM film_directors fd
+                    WHERE fd.director_id = ?
+                )
+                GROUP BY f.id, release_year, mr.id, mr.name
+                ORDER BY release_year ASC
+            """;
 
     private static final String GET_DIRECTOR_FILMS_SORTED_BY_LIKES = """
                 SELECT f.*,
@@ -62,33 +101,14 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 GROUP BY f.id, fl.likes_count, mr.id, mr.name
                 ORDER BY fl.likes_count DESC
             """;
-
-    private static final String GET_DIRECTOR_FILMS_SORTED_BY_YEAR = """
-                SELECT f.*,
-                EXTRACT(YEAR FROM CAST(f.release_date AS DATE)) AS release_year,
-                mr.id AS mpa_rating_id,
-                mr.name AS mpa_rating_name,
-                LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
-                LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name
-                FROM films f
-                LEFT JOIN mpa_ratings mr ON f.mpa_rating_id = mr.id
-                LEFT JOIN films_genres fg ON fg.film_id = f.id
-                LEFT JOIN genres g ON g.id = fg.genre_id
-                WHERE f.id IN (
-                    SELECT film_id
-                    FROM film_directors fd
-                    WHERE fd.director_id = ?
-                )
-                GROUP BY f.id, release_year, mr.id, mr.name
-                ORDER BY release_year ASC
-            """;
-
     private static final String INSERT_FILM_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
     private static final String INSERT_FILM_GENRE_QUERY = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
-
     private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ? WHERE id = ?";
     private static final String DELETE_FILM_QUERY = "DELETE FROM films WHERE id = ?";
     private static final String DELETE_FILM_GENRES_QUERY = "DELETE FROM films_genres WHERE film_id = ?";
+    private static final String GET_ALL_FILM_GENRES_QUERY =
+            "SELECT fg.film_id, g.id AS genre_id, g.name AS name FROM films_genres fg " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id WHERE fg.film_id IN (%s)";
 
     private final FilmDirectorsStorage filmDirectorsStorage;
 
@@ -202,6 +222,42 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 LIMIT ?""", paramsString);
     }
 
+    public Map<Integer, List<Genre>> getAllFilmGenres(Collection<Film> films) {
+        log.info("Загрузка жанров для фильмов: {}", films);
+        Map<Integer, List<Genre>> filmGenreMap = new HashMap<>();
+        Collection<String> ids = films.stream()
+                .map(film -> String.valueOf(film.getId()))
+                .toList();
+
+        log.debug("Запрос жанров для фильмов с ID: {}", ids);
+
+        jdbc.query(String.format(GET_ALL_FILM_GENRES_QUERY, String.join(",", ids)), rs -> {
+            Genre genre = Genre.builder()
+                    .id((long) rs.getInt("genre_id"))
+                    .name(rs.getString("name"))
+                    .build();
+
+            Integer filmId = rs.getInt("film_id");
+
+            filmGenreMap.putIfAbsent(filmId, new ArrayList<>());
+            filmGenreMap.get(filmId).add(genre);
+        });
+
+
+        log.info("Загруженные жанры из БД: {}", filmGenreMap);
+        return filmGenreMap;
+    }
+
+
+    @Override
+    public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {
+        log.info("Запрос общих фильмов для пользователей с ID: {} и {}", userId, friendId);
+        Collection<Film> films = findMany(GET_COMMON_FILMS, userId, friendId);
+        log.info("Общие фильмы найдены: {}", films);
+        return films;
+    }
+
+
     public Collection<Film> getDirectorFilmSortedByLike(Long directorId) {
         return findMany(GET_DIRECTOR_FILMS_SORTED_BY_LIKES, directorId);
     }
@@ -209,5 +265,4 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     public Collection<Film> getDirectorFilmSortedByYear(Long directorId) {
         return findMany(GET_DIRECTOR_FILMS_SORTED_BY_YEAR, directorId);
     }
-
 }
