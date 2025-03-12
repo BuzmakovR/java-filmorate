@@ -37,6 +37,9 @@ public abstract class FilmServiceTests {
 	protected MpaRatingStorage mpaRatingStorage;
 
 	@Autowired
+	protected DirectorStorage directorStorage;
+
+	@Autowired
 	protected FeedStorage feedStorage;
 
 	@BeforeEach

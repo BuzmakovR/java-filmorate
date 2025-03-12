@@ -95,4 +95,12 @@ public class FilmController {
 		filmService.deleteLike(filmId, userId);
 	}
 	//endregion
+
+	@GetMapping("/director/{directorId}")
+	public Collection<Film> getFilmsByDirector(
+			@PathVariable Long directorId,
+			@RequestParam(defaultValue = "likes") String sortBy) {
+
+		return filmService.getFilmsByDirectorSorted(directorId, sortBy);
+	}
 }

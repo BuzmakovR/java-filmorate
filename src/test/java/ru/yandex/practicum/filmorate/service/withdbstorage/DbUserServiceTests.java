@@ -15,11 +15,13 @@ import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.*;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Import({UserService.class, UserDbStorage.class, UserRowMapper.class,
-		FriendRequestDbStorage.class, FriendRequestRowMapper.class, FilmService.class, FilmDbStorage.class,
-		FilmRowMapper.class, FilmLikeDbStorage.class, FilmLikeRowMapper.class,
-		GenreDbStorage.class, GenreRowMapper.class,
-		MpaRatingDbStorage.class, MpaRatingRowMapper.class,
-		FeedDbStorage.class, FeedRowMapper.class})
+        FriendRequestDbStorage.class, FriendRequestRowMapper.class, FilmService.class, FilmDbStorage.class,
+        FilmRowMapper.class, FilmLikeDbStorage.class, FilmLikeRowMapper.class,
+        GenreDbStorage.class, GenreRowMapper.class,
+        MpaRatingDbStorage.class, MpaRatingRowMapper.class,
+        DirectorDbStorage.class, DirectorRowMapper.class,
+        FeedDbStorage.class, FeedRowMapper.class,
+        FilmDirectorsDbStorage.class})
 public class DbUserServiceTests extends UserServiceTests {
 
 }
