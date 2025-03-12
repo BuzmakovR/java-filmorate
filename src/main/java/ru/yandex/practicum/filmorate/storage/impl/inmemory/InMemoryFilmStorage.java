@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component("inMemoryFilmStorage")
@@ -101,5 +102,19 @@ public class InMemoryFilmStorage implements FilmStorage {
 	@Override
 	public List<Film> getDirectorFilmSortedByLike(Long directorId) {
 		return List.of();
+	}
+
+	@Override
+	public Collection<Film> searchFilms(String query) {
+		if (query == null || query.trim().isEmpty()) {
+			return getAll();
+		}
+
+		return films.values().stream()
+				.filter(film -> film.getName() != null &&
+						film.getName().toLowerCase().contains(query.toLowerCase()))
+				.sorted(Collections.reverseOrder(
+						Comparator.comparing(film -> inMemoryFilmLikeStorage.getFilmLikes(film.getId()).size())))
+				.collect(Collectors.toList());
 	}
 }
