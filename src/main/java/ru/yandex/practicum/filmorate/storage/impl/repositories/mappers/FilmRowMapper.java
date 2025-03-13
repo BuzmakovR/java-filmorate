@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.impl.repositories.mappers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.MpaRating;
@@ -68,6 +69,23 @@ public class FilmRowMapper implements RowMapper<Film> {
 					.build();
 			film.addGenre(genre);
 			log.debug("Добавлен жанр в фильм: {}", genre);
+		}
+
+		// Обработка режиссёров
+		List<String> directorIds = Optional.ofNullable(rs.getString("director_id"))
+				.map(s -> List.of(s.split(",")))
+				.orElse(List.of());
+		List<String> directorNames = Optional.ofNullable(rs.getString("director_name"))
+				.map(s -> List.of(s.split(",")))
+				.orElse(List.of());
+		for (int i = 0; i < directorIds.size(); i++) {
+			if (i >= directorNames.size()) break;
+			Director director = Director.builder()
+					.id(Long.valueOf(directorIds.get(i)))
+					.name(directorNames.get(i))
+					.build();
+			film.getDirectors().add(director);
+			log.debug("Добавлен режиссёр в фильм: {}", director);
 		}
 
 		log.debug("Завершение маппинга строки ResultSet в объект Film. Результат: {}", film);

@@ -10,7 +10,7 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 public class Director {
-    private Long id;
-    @NotBlank(message = "Имя режиссёра не может быть пустым")
-    private String name;
+	private Long id;
+	@NotBlank(message = "Имя режиссёра не может быть пустым")
+	private String name;
 }

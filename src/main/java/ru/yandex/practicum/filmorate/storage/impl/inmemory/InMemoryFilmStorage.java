@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Component("inMemoryFilmStorage")
@@ -101,5 +102,41 @@ public class InMemoryFilmStorage implements FilmStorage {
 	@Override
 	public List<Film> getDirectorFilmSortedByLike(Long directorId) {
 		return List.of();
+	}
+
+	@Override
+	public Collection<Film> searchFilms(String query, List<String> searchFields) {
+		if (query == null || query.trim().isEmpty()) {
+			return getAll();
+		}
+
+		if (searchFields == null || searchFields.isEmpty()) {
+			throw new IllegalArgumentException("Параметр 'searchFields' не может быть пустым или null");
+		}
+
+		String queryLower = query.toLowerCase();
+
+		return films.values().stream()
+				.filter(film -> matchesTitle(film, queryLower, searchFields) ||
+						matchesDirector(film, queryLower, searchFields))
+				.peek(film -> System.out.println("Film " + film.getId() +
+						" likes: " + inMemoryFilmLikeStorage.getFilmLikes(film.getId())))
+				.sorted(Collections.reverseOrder(
+						Comparator.comparing(film -> inMemoryFilmLikeStorage.getFilmLikes(film.getId()).size())))
+				.collect(Collectors.toList());
+	}
+
+	private boolean matchesTitle(Film film, String queryLower, List<String> searchFields) {
+		return searchFields.contains("title") &&
+				film.getName() != null &&
+				film.getName().toLowerCase().contains(queryLower);
+
+	}
+
+	private boolean matchesDirector(Film film, String queryLower, List<String> searchFields) {
+		return searchFields.contains("director") &&
+				film.getDirectors() != null &&
+				film.getDirectors().stream()
+						.anyMatch(d -> d.getName() != null && d.getName().toLowerCase().contains(queryLower));
 	}
 }
