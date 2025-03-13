@@ -37,8 +37,7 @@ public class Film {
 
 	private final Collection<Genre> genres = new ArrayList<>();
 
-	@Builder.Default
-	private Set<Director> directors = new HashSet<>();
+	private final Set<Director> directors = new HashSet<>();
 
 	private Integer likes;
 
@@ -71,5 +70,10 @@ public class Film {
 		}
 	}
 
-
+	public void setDirectors(Collection<Director> directors) {
+		this.directors.clear();
+		if (directors != null && !directors.isEmpty()) {
+			this.directors.addAll(directors);
+		}
+	}
 }

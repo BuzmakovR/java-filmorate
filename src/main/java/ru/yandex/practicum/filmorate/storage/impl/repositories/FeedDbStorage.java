@@ -4,8 +4,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
-import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 
 import java.time.Instant;
@@ -17,7 +17,7 @@ public class FeedDbStorage extends BaseRepository<Feed> implements FeedStorage {
 	private static final String INSERT_QUERY = """
 			INSERT INTO feeds (user_id, entity_id, timestamp, event_type, event_operation)
 			VALUES (?, ?, ?, ?, ?)""";
-	private static final String FIND_BY_USERID_QUERY = "SELECT * FROM feeds WHERE user_id = ? ORDER BY event_id";
+	private static final String FIND_BY_USERID_QUERY = "SELECT * FROM feeds WHERE user_id = ? ORDER BY timestamp";
 
 	public FeedDbStorage(JdbcTemplate jdbc, RowMapper<Feed> mapper) {
 		super(jdbc, mapper);
@@ -25,7 +25,8 @@ public class FeedDbStorage extends BaseRepository<Feed> implements FeedStorage {
 
 	@Override
 	public void addEvent(Long userId, Long entityId, EventOperation eventOperation, EventType eventType) {
-		insert(INSERT_QUERY, userId, entityId, Instant.now().toEpochMilli(), eventType.name(), eventOperation.name());
+		updateWithoutCheck(INSERT_QUERY,
+				userId, entityId, Instant.now().toEpochMilli(), eventType.name(), eventOperation.name());
 	}
 
 	@Override

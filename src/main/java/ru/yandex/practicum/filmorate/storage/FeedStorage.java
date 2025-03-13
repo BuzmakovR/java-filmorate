@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
-import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 
 import java.util.Collection;
 

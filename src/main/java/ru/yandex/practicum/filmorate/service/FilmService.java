@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.DirectorSortBy;
+import ru.yandex.practicum.filmorate.model.enums.DirectorSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
-import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.*;
@@ -127,6 +127,8 @@ public class FilmService {
 
 	public Collection<Film> getFilmsByDirectorSorted(Long directorId, String sortBy) {
 		log.info("Запрос фильмов режиссера {} с сортировкой по {}", directorId, sortBy);
+		directorStorage.get(directorId);
+
 		DirectorSortBy sortEnum = DirectorSortBy.fromString(sortBy);
 		Collection<Film> films = switch (sortEnum) {
 			case YEAR -> filmStorage.getDirectorFilmSortedByYear(directorId);

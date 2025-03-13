@@ -32,8 +32,8 @@ public class ReviewController {
 	}
 
 	@GetMapping()
-	public Collection<Review> friends(@RequestParam(name = "filmId") long filmId,
-									  @RequestParam(name = "count", defaultValue = "10") int count) {
+	public Collection<Review> getReviews(@RequestParam(name = "filmId", required = false) Long filmId,
+									  @RequestParam(name = "count", defaultValue = "10") Integer count) {
 		return reviewService.getReviews(filmId, count);
 	}
 

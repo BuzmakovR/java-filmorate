@@ -11,6 +11,8 @@ import ru.yandex.practicum.filmorate.model.ReviewLike;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Optional;
 
 @Repository("reviewDbStorage")
@@ -89,6 +91,10 @@ public class ReviewDbStorage extends BaseRepository<Review> implements ReviewSto
 			reviewLikeDbStorage.getReviewLikes(review.getReviewId())
 					.forEach(review::addReviewLike);
 		});
+		reviews = reviews.stream()
+				.sorted(Collections.reverseOrder(
+						Comparator.comparing(Review::getUseful))
+				).toList();
 		return reviews;
 	}
 

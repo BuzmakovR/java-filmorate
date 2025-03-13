@@ -14,7 +14,13 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 	private static final String FIND_LIKES_BY_ID = "SELECT * FROM films_likes WHERE film_id = ?";
 	private static final String DELETE_LIKES_BY_ID = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
 	private static final String DELETE_ALL_LIKES_BY_ID = "DELETE FROM films_likes WHERE film_id = ?";
-	private static final String INSERT_QUERY = "INSERT INTO films_likes(film_id, user_id) VALUES(?, ?)";
+	private static final String INSERT_QUERY = "INSERT INTO films_likes(film_id, user_id) " +
+			"SELECT CAST(? AS bigint) film_id, CAST(? AS bigint) user_id " +
+			"FROM dual " +
+			"WHERE NOT EXISTS (" +
+			"SELECT 1 FROM films_likes " +
+			"WHERE film_id = ? AND user_id = ?" +
+			")";
 	private static final String FIND_ALL_LIKES_QUERY = "SELECT * FROM films_likes";
 
 	public FilmLikeDbStorage(JdbcTemplate jdbc, RowMapper<FilmLike> mapper) {
@@ -30,8 +36,10 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 
 	@Override
 	public void addFilmLike(Long filmId, Long userId) {
-		update(
+		updateWithoutCheck(
 				INSERT_QUERY,
+				filmId,
+				userId,
 				filmId,
 				userId
 		);

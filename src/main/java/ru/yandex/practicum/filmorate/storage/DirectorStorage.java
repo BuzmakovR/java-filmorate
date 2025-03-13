@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 public interface DirectorStorage {
-	Director getById(Long id);
+	Director get(Long id);
 
 	Collection<Director> getAll();
 

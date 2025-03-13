@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.ReviewLike;
-import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
-import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
@@ -53,6 +53,9 @@ public class ReviewService {
 		if (newReview.getReviewId() == null) {
 			throw new ValidationException("Id отзыва должен быть указан");
 		}
+		Review oldReview = reviewStorage.get(newReview.getReviewId());
+		newReview.setFilmId(oldReview.getFilmId());
+		newReview.setUserId(oldReview.getUserId());
 		Review request = reviewStorage.update(newReview);
 		feedStorage.addEvent(request.getUserId(), request.getReviewId(), EventOperation.UPDATE, EventType.REVIEW);
 		return request;
@@ -68,13 +71,11 @@ public class ReviewService {
 		Review review = reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.addLike(reviewLike);
-		feedStorage.addEvent(reviewLike.getUserId(), review.getReviewId(), EventOperation.ADD, EventType.LIKE);
 	}
 
 	public void deleteLike(ReviewLike reviewLike) {
 		Review review = reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.deleteLike(reviewLike);
-		feedStorage.addEvent(reviewLike.getUserId(), review.getReviewId(), EventOperation.REMOVE, EventType.LIKE);
 	}
 }
