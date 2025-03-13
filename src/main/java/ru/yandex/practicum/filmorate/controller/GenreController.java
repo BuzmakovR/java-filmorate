@@ -18,27 +18,27 @@ import java.util.Collection;
 @RequestMapping("/genres")
 public class GenreController {
 
-    @Autowired
-    private final GenreService genreService;
+	@Autowired
+	private final GenreService genreService;
 
-    @GetMapping
-    public Collection<Genre> findAll() {
-        log.info("Запрос на получение жанров");
+	@GetMapping
+	public Collection<Genre> findAll() {
+		log.info("Запрос на получение жанров");
 
-        Collection<Genre> users = genreService.getGenres();
+		Collection<Genre> users = genreService.getGenres();
 
-        log.debug("Список жанров: {}", users);
+		log.debug("Список жанров: {}", users);
 
-        return users;
-    }
+		return users;
+	}
 
-    @GetMapping("/{id}")
-    public Genre get(@PathVariable("id") long id) {
-        log.info("Запрос на получение пользователя с ID: {}", id);
+	@GetMapping("/{id}")
+	public Genre get(@PathVariable("id") long id) {
+		log.info("Запрос на получение пользователя с ID: {}", id);
 
-        Genre genre = genreService.getGenre(id);
-        log.debug("Полученный жанр: {}", genre);
+		Genre genre = genreService.getGenre(id);
+		log.debug("Полученный жанр: {}", genre);
 
-        return genre;
-    }
+		return genre;
+	}
 }

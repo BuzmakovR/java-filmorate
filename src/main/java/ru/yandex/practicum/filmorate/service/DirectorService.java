@@ -13,43 +13,43 @@ import java.util.Collection;
 @Service
 public class DirectorService {
 
-    private final DirectorStorage directorStorage;
+	private final DirectorStorage directorStorage;
 
-    @Autowired
-    public DirectorService(@Qualifier("directorDbStorage") DirectorStorage directorStorage) {
-        this.directorStorage = directorStorage;
-    }
+	@Autowired
+	public DirectorService(@Qualifier("directorDbStorage") DirectorStorage directorStorage) {
+		this.directorStorage = directorStorage;
+	}
 
-    public Director getDirector(Long directorId) {
-        log.info("Запрос на получение режиссера с ID {}", directorId);
-        return directorStorage.getById(directorId);
-    }
+	public Director getDirector(Long directorId) {
+		log.info("Запрос на получение режиссера с ID {}", directorId);
+		return directorStorage.getById(directorId);
+	}
 
-    public Collection<Director> getAllDirectors() {
-        log.info("Запрос на получение всех режиссеров");
-        Collection<Director> directors = directorStorage.getAll();
-        log.debug("Найдено {} режиссеров", directors.size());
-        return directors;
-    }
+	public Collection<Director> getAllDirectors() {
+		log.info("Запрос на получение всех режиссеров");
+		Collection<Director> directors = directorStorage.getAll();
+		log.debug("Найдено {} режиссеров", directors.size());
+		return directors;
+	}
 
-    public Director addDirector(Director director) {
-        log.info("Добавление нового режиссера: {}", director);
-        // Значение id будет сгенерировано БД
-        Director addedDirector = directorStorage.create(director);
-        log.info("Режиссер успешно добавлен с ID {}", addedDirector.getId());
-        return addedDirector;
-    }
+	public Director addDirector(Director director) {
+		log.info("Добавление нового режиссера: {}", director);
+		// Значение id будет сгенерировано БД
+		Director addedDirector = directorStorage.create(director);
+		log.info("Режиссер успешно добавлен с ID {}", addedDirector.getId());
+		return addedDirector;
+	}
 
-    public Director updateDirector(Director newDirector) {
-        log.info("Обновление режиссера с ID {}", newDirector.getId());
-        Director updatedDirector = directorStorage.update(newDirector);
-        log.info("Режиссер с ID {} успешно обновлен", updatedDirector.getId());
-        return updatedDirector;
-    }
+	public Director updateDirector(Director newDirector) {
+		log.info("Обновление режиссера с ID {}", newDirector.getId());
+		Director updatedDirector = directorStorage.update(newDirector);
+		log.info("Режиссер с ID {} успешно обновлен", updatedDirector.getId());
+		return updatedDirector;
+	}
 
-    public void deleteDirector(Long directorId) {
-        log.info("Удаление режиссера с ID {}", directorId);
-        directorStorage.deleteById(directorId);
-        log.info("Режиссер с ID {} успешно удален", directorId);
-    }
+	public void deleteDirector(Long directorId) {
+		log.info("Удаление режиссера с ID {}", directorId);
+		directorStorage.deleteById(directorId);
+		log.info("Режиссер с ID {} успешно удален", directorId);
+	}
 }

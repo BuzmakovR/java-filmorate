@@ -11,28 +11,28 @@ import java.util.Collection;
 @Service
 public class GenreService {
 
-    @Autowired
-    @Qualifier("genreDbStorage")
-    private final GenreStorage genreStorage;
+	@Autowired
+	@Qualifier("genreDbStorage")
+	private final GenreStorage genreStorage;
 
-    @Autowired
-    public GenreService(@Qualifier("genreDbStorage") GenreStorage genreStorage) {
-        this.genreStorage = genreStorage;
-    }
+	@Autowired
+	public GenreService(@Qualifier("genreDbStorage") GenreStorage genreStorage) {
+		this.genreStorage = genreStorage;
+	}
 
-    public Collection<Genre> getGenres() {
-        return genreStorage.getAll();
-    }
+	public Collection<Genre> getGenres() {
+		return genreStorage.getAll();
+	}
 
-    public Genre getGenre(final Long genreId) {
-        return genreStorage.get(genreId);
-    }
+	public Genre getGenre(final Long genreId) {
+		return genreStorage.get(genreId);
+	}
 
-    public Genre addGenre(Genre genre) {
-        return genreStorage.add(genre);
-    }
+	public Genre addGenre(Genre genre) {
+		return genreStorage.add(genre);
+	}
 
-    public Genre deleteGenre(final Long genreId) {
-        return genreStorage.delete(genreId);
-    }
+	public Genre deleteGenre(final Long genreId) {
+		return genreStorage.delete(genreId);
+	}
 }

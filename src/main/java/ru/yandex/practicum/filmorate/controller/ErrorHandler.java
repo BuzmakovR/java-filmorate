@@ -17,37 +17,37 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handlerNotFoundException(final NotFoundException e) {
-        return new ErrorResponse(e.getMessage());
-    }
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ErrorResponse handlerNotFoundException(final NotFoundException e) {
+		return new ErrorResponse(e.getMessage());
+	}
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handlerValidationException(final ValidationException e) {
-        return new ErrorResponse(e.getMessage());
-    }
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handlerValidationException(final ValidationException e) {
+		return new ErrorResponse(e.getMessage());
+	}
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handlerMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
-        return new ErrorResponse(
-                Arrays.stream(Objects.requireNonNull(e.getDetailMessageArguments()))
-                        .map(String::valueOf)
-                        .filter(s -> !(s.isEmpty() || s.isBlank()))
-                        .collect(Collectors.joining(";")));
-    }
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handlerMethodArgumentNotValidException(final MethodArgumentNotValidException e) {
+		return new ErrorResponse(
+				Arrays.stream(Objects.requireNonNull(e.getDetailMessageArguments()))
+						.map(String::valueOf)
+						.filter(s -> !(s.isEmpty() || s.isBlank()))
+						.collect(Collectors.joining(";")));
+	}
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse dbErrorExceptionException(final DbErrorException e) {
-        return new ErrorResponse("Произошла непредвиденная ошибка");
-    }
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ErrorResponse dbErrorExceptionException(final DbErrorException e) {
+		return new ErrorResponse("Произошла непредвиденная ошибка");
+	}
 
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse internalServerException(final Throwable e) {
-        return new ErrorResponse("Произошла непредвиденная ошибка");
-    }
+	@ExceptionHandler
+	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+	public ErrorResponse internalServerException(final Throwable e) {
+		return new ErrorResponse("Произошла непредвиденная ошибка");
+	}
 }

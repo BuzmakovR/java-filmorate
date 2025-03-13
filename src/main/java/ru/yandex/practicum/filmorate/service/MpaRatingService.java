@@ -11,28 +11,28 @@ import java.util.Collection;
 @Service
 public class MpaRatingService {
 
-    @Autowired
-    @Qualifier("mpaRatingDbStorage")
-    private final MpaRatingStorage mpaRatingStorage;
+	@Autowired
+	@Qualifier("mpaRatingDbStorage")
+	private final MpaRatingStorage mpaRatingStorage;
 
-    @Autowired
-    public MpaRatingService(@Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage) {
-        this.mpaRatingStorage = mpaRatingStorage;
-    }
+	@Autowired
+	public MpaRatingService(@Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage) {
+		this.mpaRatingStorage = mpaRatingStorage;
+	}
 
-    public Collection<MpaRating> getRatings() {
-        return mpaRatingStorage.getAll();
-    }
+	public Collection<MpaRating> getRatings() {
+		return mpaRatingStorage.getAll();
+	}
 
-    public MpaRating getRating(final Long ratingId) {
-        return mpaRatingStorage.get(ratingId);
-    }
+	public MpaRating getRating(final Long ratingId) {
+		return mpaRatingStorage.get(ratingId);
+	}
 
-    public MpaRating addRating(MpaRating rating) {
-        return mpaRatingStorage.add(rating);
-    }
+	public MpaRating addRating(MpaRating rating) {
+		return mpaRatingStorage.add(rating);
+	}
 
-    public MpaRating deleteRating(final Long ratingId) {
-        return mpaRatingStorage.delete(ratingId);
-    }
+	public MpaRating deleteRating(final Long ratingId) {
+		return mpaRatingStorage.delete(ratingId);
+	}
 }

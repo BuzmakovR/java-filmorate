@@ -10,14 +10,14 @@ import ru.yandex.practicum.filmorate.model.feedResource.EventType;
 @Getter
 @Builder
 public class Feed {
-    private Long eventId;
+	private Long eventId;
 
-    @NotBlank(message = "Значение не может быть пустым")
-    private Long userId;
-    private Long entityId;
-    private Long timestamp;
+	@NotBlank(message = "Значение не может быть пустым")
+	private Long userId;
+	private Long entityId;
+	private Long timestamp;
 
-    @JsonProperty("operation")
-    private EventOperation eventOperation;
-    private EventType eventType;
+	@JsonProperty("operation")
+	private EventOperation eventOperation;
+	private EventType eventType;
 }

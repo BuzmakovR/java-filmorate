@@ -7,7 +7,7 @@ import lombok.Data;
 @Builder
 public class FilmLike {
 
-    final Long filmId;
+	final Long filmId;
 
-    final Long userId;
+	final Long userId;
 }
