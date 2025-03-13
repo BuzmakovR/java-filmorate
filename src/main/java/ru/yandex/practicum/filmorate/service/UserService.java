@@ -8,8 +8,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.feedResource.EventOperation;
-import ru.yandex.practicum.filmorate.model.feedResource.EventType;
+import ru.yandex.practicum.filmorate.model.enums.EventOperation;
+import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -109,6 +109,8 @@ public class UserService {
 
 	public Set<Film> getRecommendationFilmsByUserId(long userId) {
 		log.info("Запрос рекомендаций для пользователя с id: {}", userId);
+		userStorage.get(userId);
+
 		Map<Long, Set<Film>> userLikes = filmService.getFilmLikesData();
 		log.info("прошли фильм сервис");
 
@@ -143,6 +145,8 @@ public class UserService {
 	}
 
 	public Collection<Feed> getFeed(Long userId) {
+		log.info("Запрос ленты событий для пользователя с id: {}", userId);
+		userStorage.get(userId);
 		return feedStorage.getFeed(userId);
 	}
 }

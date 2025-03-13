@@ -22,7 +22,7 @@ public class DirectorService {
 
 	public Director getDirector(Long directorId) {
 		log.info("Запрос на получение режиссера с ID {}", directorId);
-		return directorStorage.getById(directorId);
+		return directorStorage.get(directorId);
 	}
 
 	public Collection<Director> getAllDirectors() {

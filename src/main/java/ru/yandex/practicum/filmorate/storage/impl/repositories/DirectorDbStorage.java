@@ -35,7 +35,7 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
 	}
 
 	@Override
-	public Director getById(Long id) {
+	public Director get(Long id) {
 		return findOne(SELECT_DIRECTOR_BY_ID_QUERY, id)
 				.orElseThrow(() -> new NotFoundException("Режиссер с ID " + id + " не найден"));
 	}

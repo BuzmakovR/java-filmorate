@@ -11,7 +11,7 @@ public class InMemoryDirectorStorage implements DirectorStorage {
 
 
 	@Override
-	public Director getById(Long id) {
+	public Director get(Long id) {
 		return null;
 	}
 

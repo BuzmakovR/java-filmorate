@@ -95,9 +95,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 			    LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name
 			    FROM films f
 			    LEFT JOIN (
-			    SELECT film_id, COUNT(user_id) AS likes_count
-			    FROM films_likes
-			    GROUP BY film_id
+			    	SELECT film_id, COUNT(user_id) AS likes_count
+			    	FROM films_likes
+			    	GROUP BY film_id
 			    ) fl ON fl.film_id = f.id
 			    LEFT JOIN mpa_ratings mr ON f.mpa_rating_id = mr.id
 			    LEFT JOIN films_genres fg ON fg.film_id = f.id
@@ -105,9 +105,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 			    LEFT JOIN film_directors fd ON fd.film_id = f.id
 			    LEFT JOIN directors d ON d.id = fd.director_id
 			    WHERE f.id IN (
-			    SELECT film_id
-			    FROM film_directors fd
-			    WHERE fd.director_id = ?
+			    	SELECT film_id
+			    	FROM film_directors fd
+			    	WHERE fd.director_id = ?
 			    )
 			    GROUP BY f.id, fl.likes_count, mr.id, mr.name
 			    ORDER BY fl.likes_count DESC
@@ -246,9 +246,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 			);
 		});
 
-		if (newFilm.getDirectors() != null && !newFilm.getDirectors().isEmpty()) {
-			filmDirectorsStorage.addFilmDirectors(newFilm);
-		}
+		filmDirectorsStorage.updateFilmDirectors(newFilm);
 		return newFilm;
 	}
 
@@ -267,7 +265,7 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 			return findMany(paramGetPopularQuery(""), count);
 		} else if (genreId != null && year == null) {
 			return findMany(paramGetPopularQuery("WHERE g.id = ?"), genreId, count);
-		} else if (genreId == null && year != null) {
+		} else if (genreId == null) {
 			return findMany(paramGetPopularQuery("WHERE YEAR (f.release_date) = ?"), year, count);
 		} else {
 			return findMany(paramGetPopularQuery("WHERE g.id = ? AND YEAR (f.release_date) = ?"), genreId, year, count);
@@ -278,8 +276,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 		return String.format("""
 				SELECT f.*,
 				mr.name mpa_rating_name,
-				LISTAGG(DISTINCT g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
-				LISTAGG(DISTINCT g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name,
+				allg.genre_id,
+				allg.genre_name,
 				LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id,
 				LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name,
 				COUNT(DISTINCT fl.user_id) AS like_count
@@ -290,6 +288,14 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 				LEFT JOIN films_likes fl ON fl.film_id = f.id
 				LEFT JOIN film_directors fd ON fd.film_id = f.id
 				LEFT JOIN directors d ON d.id = fd.director_id
+				LEFT JOIN (
+					SELECT fg.film_id,
+						LISTAGG(DISTINCT g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
+						LISTAGG(DISTINCT g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name
+					FROM films_genres fg
+					JOIN genres g ON g.id = fg.genre_id
+					GROUP BY fg.film_id
+				) allg ON allg.film_id = f.id
 				%s
 				GROUP BY f.id
 				ORDER BY like_count DESC

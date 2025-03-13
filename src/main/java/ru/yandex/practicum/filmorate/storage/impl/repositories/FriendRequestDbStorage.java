@@ -20,7 +20,11 @@ public class FriendRequestDbStorage extends BaseRepository<FriendRequest> implem
 			"WHEN (SELECT count(1) FROM friend_requests WHERE friend_id = ? AND user_id = ?) = 1 THEN TRUE " +
 			"ELSE FALSE  " +
 			"END " +
-			"FROM dual";
+			"FROM dual " +
+			"WHERE NOT EXISTS (" +
+			"SELECT 1 from friend_requests " +
+			"WHERE user_id = ? AND friend_id = ?" +
+			")";
 	private static final String UPDATE_QUERY = "UPDATE friend_requests SET is_confirmed = " +
 			"CASE " +
 			"WHEN (SELECT count(1) FROM friend_requests WHERE friend_id = ? AND user_id = ?) = 1 THEN TRUE " +
@@ -46,12 +50,14 @@ public class FriendRequestDbStorage extends BaseRepository<FriendRequest> implem
 
 	@Override
 	public void addUserFriend(Long userId, Long friendId) {
-		update(
+		updateWithoutCheck(
 				INSERT_QUERY,
 				userId,
 				friendId,
 				friendId,
-				userId
+				userId,
+				userId,
+				friendId
 		);
 		updateWithoutCheck(
 				UPDATE_QUERY,
