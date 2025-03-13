@@ -21,31 +21,43 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
     private static final String FIND_ALL_QUERY = "SELECT f.*, " +
             "LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id, " +
             "LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name, " +
-            "mr.name mpa_rating_name, " +
+            "LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id, " +
+            "LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name, " +
+            "mr.name mpa_rating_name " +
             "FROM films f " +
             "LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id " +
             "LEFT JOIN films_genres fg ON fg.film_id = f.id " +
             "LEFT JOIN genres g ON g.id = fg.genre_id " +
+            "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
+            "LEFT JOIN directors d ON d.id = fd.director_id " +
             "GROUP BY f.id";
     private static final String FIND_BY_ID_QUERY = "SELECT f.*, " +
             "LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id, " +
             "LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name, " +
-            "mr.name mpa_rating_name, " +
+            "LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id, " +
+            "LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name, " +
+            "mr.name mpa_rating_name " +
             "FROM films f " +
             "LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id " +
             "LEFT JOIN films_genres fg ON fg.film_id = f.id " +
             "LEFT JOIN genres g ON g.id = fg.genre_id " +
+            "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
+            "LEFT JOIN directors d ON d.id = fd.director_id " +
             "WHERE f.id = ? " +
             "GROUP BY f.id";
     private static final String GET_COMMON_FILMS = "SELECT f.id, f.name, f.description, f.release_date, " +
             "f.duration, f.mpa_rating_id, m.name AS mpa_rating_name, " +
-            "STRING_AGG(g.id, ',') AS genre_id, STRING_AGG(g.name, ',') AS genre_name " +
+            "STRING_AGG(g.id, ',') AS genre_id, STRING_AGG(g.name, ',') AS genre_name, " +
+            "LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id, " +
+            "LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name " +
             "FROM films f " +
             "JOIN mpa_ratings m ON f.mpa_rating_id = m.id " +
             "JOIN films_likes l1 ON f.id = l1.film_id " +
             "JOIN films_likes l2 ON f.id = l2.film_id " +
             "LEFT JOIN films_genres fg ON f.id = fg.film_id " +
             "LEFT JOIN genres g ON fg.genre_id = g.id " +
+            "LEFT JOIN film_directors fd ON fd.film_id = f.id " +
+            "LEFT JOIN directors d ON d.id = fd.director_id " +
             "WHERE l1.user_id = ? AND l2.user_id = ? " +
             "GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, m.name " +
             "ORDER BY (SELECT COUNT(*) FROM films_likes fl WHERE fl.film_id = f.id) DESC";
@@ -55,11 +67,15 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 mr.id AS mpa_rating_id,
                 mr.name AS mpa_rating_name,
                 LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
-                LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name
+                LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name,
+                LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id,
+                LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name
                 FROM films f
                 LEFT JOIN mpa_ratings mr ON f.mpa_rating_id = mr.id
                 LEFT JOIN films_genres fg ON fg.film_id = f.id
                 LEFT JOIN genres g ON g.id = fg.genre_id
+                LEFT JOIN film_directors fd ON fd.film_id = f.id
+                LEFT JOIN directors d ON d.id = fd.director_id
                 WHERE f.id IN (
                     SELECT film_id
                     FROM film_directors fd
@@ -74,7 +90,9 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 mr.id AS mpa_rating_id,
                 mr.name AS mpa_rating_name,
                 LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
-                LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name
+                LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name,
+                LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id,
+                LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name
                 FROM films f
                 LEFT JOIN (
                 SELECT film_id, COUNT(user_id) AS likes_count
@@ -84,6 +102,8 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 LEFT JOIN mpa_ratings mr ON f.mpa_rating_id = mr.id
                 LEFT JOIN films_genres fg ON fg.film_id = f.id
                 LEFT JOIN genres g ON g.id = fg.genre_id
+                LEFT JOIN film_directors fd ON fd.film_id = f.id
+                LEFT JOIN directors d ON d.id = fd.director_id
                 WHERE f.id IN (
                 SELECT film_id
                 FROM film_directors fd
@@ -260,12 +280,16 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
                 mr.name mpa_rating_name,
                 LISTAGG(DISTINCT g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
                 LISTAGG(DISTINCT g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name,
+                LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id,
+                LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name,
                 COUNT(DISTINCT fl.user_id) AS like_count
                 FROM films f
                 LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id
                 LEFT JOIN films_genres fg ON fg.film_id = f.id
                 LEFT JOIN genres g ON g.id = fg.genre_id
                 LEFT JOIN films_likes fl ON fl.film_id = f.id
+                LEFT JOIN film_directors fd ON fd.film_id = f.id
+                LEFT JOIN directors d ON d.id = fd.director_id
                 %s
                 GROUP BY f.id
                 ORDER BY like_count DESC
