@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service.withinmemory;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.UserServiceTests;
 import ru.yandex.practicum.filmorate.storage.impl.inmemory.*;

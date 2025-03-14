@@ -4,8 +4,6 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class InMemoryDirectorStorage implements DirectorStorage {
 
