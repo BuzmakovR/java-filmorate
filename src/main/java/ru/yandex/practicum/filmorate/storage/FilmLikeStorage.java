@@ -1,12 +1,15 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import ru.yandex.practicum.filmorate.model.FilmLike;
+
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 public interface FilmLikeStorage {
 
 	Collection<Long> getFilmLikes(Long filmId);
+
+	Set<Long> getUsersWithSameLikes(Long userId);
 
 	void addFilmLike(Long filmId, Long userId);
 
@@ -14,5 +17,5 @@ public interface FilmLikeStorage {
 
 	void deleteAllLikesForFilm(Long filmId);
 
-	Map<Long, Set<Long>> getAllLikes();
+	Set<FilmLike> getAllLikes();
 }

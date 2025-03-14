@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Director;
@@ -10,15 +10,12 @@ import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import java.util.Collection;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class DirectorService {
 
+	@Qualifier("directorDbStorage")
 	private final DirectorStorage directorStorage;
-
-	@Autowired
-	public DirectorService(@Qualifier("directorDbStorage") DirectorStorage directorStorage) {
-		this.directorStorage = directorStorage;
-	}
 
 	public Director getDirector(Long directorId) {
 		log.info("Запрос на получение режиссера с ID {}", directorId);

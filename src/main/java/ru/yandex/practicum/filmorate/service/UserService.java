@@ -11,11 +11,12 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.enums.EventOperation;
 import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.FilmLikeStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,7 +32,11 @@ public class UserService {
 	@Qualifier("feedDbStorage")
 	private final FeedStorage feedStorage;
 
-	private final FilmService filmService;
+	@Qualifier("filmLikeDbStorage")
+	private final FilmLikeStorage filmLikeStorage;
+
+	@Qualifier("filmDbStorage")
+	private final FilmStorage filmStorage;
 
 	public Collection<User> getUsers() {
 		return userStorage.getAll();
@@ -111,35 +116,10 @@ public class UserService {
 		log.info("Запрос рекомендаций для пользователя с id: {}", userId);
 		userStorage.get(userId);
 
-		Map<Long, Set<Film>> userLikes = filmService.getFilmLikesData();
-		log.info("прошли фильм сервис");
+		log.info("Запрос пользователей с одинаковыми лайками для фильмов");
+		Set<Long> usersWithSameLikes = filmLikeStorage.getUsersWithSameLikes(userId);
+		Set<Film> recommendedFilms = Set.copyOf(filmStorage.getRecommendationFilmsByUserId(userId, usersWithSameLikes));
 
-		Set<Film> targetUserLikedFilms = userLikes.getOrDefault(userId, new HashSet<>());
-
-		log.info("targetUserLikedFilms: {}", targetUserLikedFilms);
-		Map<Long, Long> similarUsers = userLikes.entrySet().stream()
-				.filter(entry -> !entry.getKey().equals(userId))
-				.collect(Collectors.toMap(
-						Map.Entry::getKey,
-						entry -> entry.getValue().stream()
-								.filter(targetUserLikedFilms::contains)
-								.count()
-				)).entrySet().stream().filter(entry -> entry.getValue() > 0)
-				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-		log.info("Пересечение по пользователям: {}", similarUsers);
-		List<Long> sortedSimilarUsersId = similarUsers.entrySet().stream()
-				.sorted(Map.Entry.<Long, Long>comparingByValue().reversed())
-				.map(Map.Entry::getKey)
-				.collect(Collectors.toList());
-		log.info("Отсортировали пересекающихся: {}", sortedSimilarUsersId);
-
-		Set<Film> recommendedFilms = new HashSet<>();
-		for (Long similarUser : sortedSimilarUsersId) {
-			Set<Film> filmsLikedBySimilarUser = userLikes.get(similarUser);
-			filmsLikedBySimilarUser.stream()
-					.filter(film -> !targetUserLikedFilms.contains(film))
-					.forEach(recommendedFilms::add);
-		}
 		log.info("Рекомендуемые фильмы: {}", recommendedFilms);
 		return recommendedFilms;
 	}

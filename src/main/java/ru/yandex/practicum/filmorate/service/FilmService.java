@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.enums.DirectorSortBy;
+import ru.yandex.practicum.filmorate.model.enums.FilmSortBy;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.enums.EventOperation;
@@ -14,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.enums.EventType;
 import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -105,53 +103,18 @@ public class FilmService {
 		film.validate();
 	}
 
-	public Map<Long, Set<Film>> getFilmLikesData() {
-		log.info("Запрос данных о лайках фильмов");
-		Map<Long, Film> films = filmStorage.getAll().stream()
-				.collect(Collectors.toMap(Film::getId, film -> film));
-		log.debug("Получено {} фильмов для обработки лайков", films.size());
-
-		Map<Long, Set<Long>> likesByFilm = filmLikeStorage.getAllLikes();
-		log.debug("Получено {} записей лайков", likesByFilm.size());
-
-		Map<Long, Set<Film>> filmLikesData = likesByFilm.entrySet().stream()
-				.collect(Collectors.toMap(
-						Map.Entry::getKey,
-						entry -> entry.getValue().stream()
-								.map(films::get)
-								.collect(Collectors.toSet())
-				));
-		log.info("Сформированы данные о лайках для {} фильмов", filmLikesData.size());
-		return filmLikesData;
-	}
-
 	public Collection<Film> getFilmsByDirectorSorted(Long directorId, String sortBy) {
 		log.info("Запрос фильмов режиссера {} с сортировкой по {}", directorId, sortBy);
 		directorStorage.get(directorId);
 
-		DirectorSortBy sortEnum = DirectorSortBy.fromString(sortBy);
+		FilmSortBy sortEnum = FilmSortBy.fromString(sortBy);
 		Collection<Film> films = switch (sortEnum) {
 			case YEAR -> filmStorage.getDirectorFilmSortedByYear(directorId);
 			case LIKES -> filmStorage.getDirectorFilmSortedByLike(directorId);
 		};
 
 		log.debug("Найдено {} фильмов, отсортированных по {}", films.size(), sortBy);
-		setAdditionalFieldsForFilms(films);
 		return films;
-	}
-
-	private void setAdditionalFieldsForFilms(Collection<Film> films) {
-		log.debug("Установка дополнительных полей для {} фильмов", films.size());
-		setDirectorsForFilms(films);
-	}
-
-	private void setDirectorsForFilms(Collection<Film> films) {
-		log.trace("Установка режиссеров для фильмов");
-		Map<Long, Set<Director>> filmsDirectors = directorStorage.getAllFilmsDirectors();
-		for (Film film : films) {
-			Set<Director> directors = filmsDirectors.getOrDefault(film.getId(), new HashSet<>());
-			film.setDirectors(directors);
-		}
 	}
 
 	public Collection<Film> getCommonFilms(Integer userId, Integer friendId) {

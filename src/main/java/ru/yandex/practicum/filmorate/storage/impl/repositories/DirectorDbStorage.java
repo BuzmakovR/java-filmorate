@@ -8,11 +8,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.impl.repositories.mappers.DirectorRowMapper;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @Repository("directorDbStorage")
@@ -23,12 +19,6 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
 	private static final String INSERT_DIRECTOR_QUERY = "INSERT INTO directors (name) VALUES (?)";
 	private static final String UPDATE_DIRECTOR_QUERY = "UPDATE directors SET name = ? WHERE id = ?";
 	private static final String DELETE_DIRECTOR_QUERY = "DELETE FROM directors WHERE id = ?";
-	private static final String SELECT_ALL_FILM_DIRECTORS_QUERY = """
-			    SELECT f.id AS film_id, d.id AS director_id, d.name AS director_name
-			    FROM films f
-			    LEFT JOIN film_directors fd ON fd.film_id = f.id
-			    LEFT JOIN directors d ON d.id = fd.director_id
-			""";
 
 	public DirectorDbStorage(JdbcTemplate jdbc, DirectorRowMapper mapper) {
 		super(jdbc, mapper);
@@ -67,24 +57,5 @@ public class DirectorDbStorage extends BaseRepository<Director> implements Direc
 			throw new NotFoundException("Режиссёр с ID " + id + " не найден");
 		}
 		log.info("Удалён режиссёр с ID: {}", id);
-	}
-
-	@Override
-	public Map<Long, Set<Director>> getAllFilmsDirectors() {
-		Map<Long, Set<Director>> filmDirectors = new HashMap<>();
-
-		jdbc.query(SELECT_ALL_FILM_DIRECTORS_QUERY, rs -> {
-			Long filmId = rs.getLong("film_id");
-			Long directorId = rs.getObject("director_id", Long.class);
-			String directorName = rs.getString("director_name");
-
-			filmDirectors.computeIfAbsent(filmId, k -> new HashSet<>());
-			if (directorId != null) {
-				filmDirectors.get(filmId).add(new Director(directorId, directorName));
-			}
-		});
-
-		log.info("Загружены режиссёры для {} фильмов", filmDirectors.size());
-		return filmDirectors;
 	}
 }

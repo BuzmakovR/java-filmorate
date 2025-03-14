@@ -34,10 +34,4 @@ public class InMemoryDirectorStorage implements DirectorStorage {
 	public void deleteById(Long id) {
 
 	}
-
-	@Override
-	public Map<Long, Set<Director>> getAllFilmsDirectors() {
-		return Map.of();
-	}
-
 }

@@ -5,12 +5,20 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.FilmLike;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
 
 @Component("inMemoryFilmStorage")
 @RequiredArgsConstructor
@@ -102,6 +110,23 @@ public class InMemoryFilmStorage implements FilmStorage {
 	@Override
 	public List<Film> getDirectorFilmSortedByLike(Long directorId) {
 		return List.of();
+	}
+
+	@Override
+	public Collection<Film> getRecommendationFilmsByUserId(Long userId, Set<Long> otherUserIds) {
+		Set<Long> userFilmIds = inMemoryFilmLikeStorage.getAllLikes().stream()
+				.filter(filmLike -> Objects.equals(userId, filmLike.getUserId()))
+				.map(FilmLike::getFilmId)
+				.collect(Collectors.toSet());
+
+		return inMemoryFilmLikeStorage.getAllLikes()
+				.stream()
+				.filter(filmLike -> !Objects.equals(filmLike.getUserId(), userId)
+						&& otherUserIds.contains(filmLike.getUserId())
+						&& !userFilmIds.contains(filmLike.getFilmId()))
+				.map(FilmLike::getFilmId)
+				.map(films::get)
+				.toList();
 	}
 
 	@Override

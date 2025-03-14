@@ -165,6 +165,30 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 			    GROUP BY f.id, f.name, f.description, f.release_date, f.duration, f.mpa_rating_id, mr.name
 			    ORDER BY like_count DESC
 			""";
+
+	private static final String GET_RECOMMENDATION_FILMS = """
+			SELECT f.*,
+			LISTAGG(g.id, ',') WITHIN GROUP (ORDER BY g.id) AS genre_id,
+			LISTAGG(g.name, ',') WITHIN GROUP (ORDER BY g.id) AS genre_name,
+			LISTAGG(d.id, ',') WITHIN GROUP (ORDER BY d.id) AS director_id,
+			LISTAGG(d.name, ',') WITHIN GROUP (ORDER BY d.id) AS director_name,
+			mr.name mpa_rating_name
+			FROM films f
+			JOIN (
+				SELECT DISTINCT fl.film_id
+				FROM FILMS_LIKES fl
+				WHERE fl.USER_ID IN (%s)
+					AND NOT EXISTS (
+						SELECT 1 FROM FILMS_LIKES fl2 WHERE fl2.FILM_ID = fl.FILM_ID AND fl2.USER_ID = ?
+					)
+			) rf ON rf.film_id = f.id
+			LEFT JOIN mpa_ratings mr ON mr.id = f.mpa_rating_id
+			LEFT JOIN films_genres fg ON fg.film_id = f.id
+			LEFT JOIN genres g ON g.id = fg.genre_id
+			LEFT JOIN film_directors fd ON fd.film_id = f.id
+			LEFT JOIN directors d ON d.id = fd.director_id
+			GROUP BY f.id
+			""";
 	private static final String INSERT_FILM_QUERY = "INSERT INTO films(name, description, release_date, duration, mpa_rating_id) VALUES (?, ?, ?, ?, ?)";
 	private static final String INSERT_FILM_GENRE_QUERY = "INSERT INTO films_genres(film_id, genre_id) VALUES (?, ?)";
 	private static final String UPDATE_FILM_QUERY = "UPDATE films SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ? WHERE id = ?";
@@ -362,6 +386,13 @@ public class FilmDbStorage extends BaseRepository<Film> implements FilmStorage {
 		} else {
 			throw new IllegalArgumentException("Некорректные поля поиска: " + searchFields);
 		}
+	}
+
+	public Collection<Film> getRecommendationFilmsByUserId(Long userId, Set<Long> otherUserIds) {
+		String query = String.format(
+				GET_RECOMMENDATION_FILMS,
+				String.join(",", otherUserIds.stream().map(String::valueOf).toList()));
+		return findMany(query, userId);
 	}
 }
 

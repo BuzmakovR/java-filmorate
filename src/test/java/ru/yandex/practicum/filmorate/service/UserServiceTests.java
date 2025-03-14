@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.FilmLikeStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -30,7 +32,10 @@ public abstract class UserServiceTests {
 	protected FriendRequestStorage friendRequestStorage;
 
 	@Autowired
-	protected FilmService filmService;
+	protected FilmLikeStorage filmLikeStorage;
+
+	@Autowired
+	protected FilmStorage filmStorage;
 
 	@Autowired
 	protected FeedStorage feedStorage;
@@ -292,14 +297,14 @@ public abstract class UserServiceTests {
 		try {
 			user1 = userService.addUser(user1);
 			user2 = userService.addUser(user2);
-			film1 = filmService.addFilm(film1);
-			film2 = filmService.addFilm(film2);
-			film3 = filmService.addFilm(film3);
-			filmService.addLike(film1.getId(), user1.getId());
-			filmService.addLike(film1.getId(), user2.getId());
-			filmService.addLike(film2.getId(), user1.getId());
-			filmService.addLike(film2.getId(), user2.getId());
-			filmService.addLike(film3.getId(), user1.getId());
+			film1 = filmStorage.add(film1);
+			film2 = filmStorage.add(film2);
+			film3 = filmStorage.add(film3);
+			filmLikeStorage.addFilmLike(film1.getId(), user1.getId());
+			filmLikeStorage.addFilmLike(film1.getId(), user2.getId());
+			filmLikeStorage.addFilmLike(film2.getId(), user1.getId());
+			filmLikeStorage.addFilmLike(film2.getId(), user2.getId());
+			filmLikeStorage.addFilmLike(film3.getId(), user1.getId());
 		} catch (Exception e) {
 			Assertions.fail(e.getMessage());
 		}

@@ -68,13 +68,13 @@ public class ReviewService {
 	}
 
 	public void addLike(ReviewLike reviewLike) {
-		Review review = reviewStorage.get(reviewLike.getReviewId());
+		reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.addLike(reviewLike);
 	}
 
 	public void deleteLike(ReviewLike reviewLike) {
-		Review review = reviewStorage.get(reviewLike.getReviewId());
+		reviewStorage.get(reviewLike.getReviewId());
 		userStorage.get(reviewLike.getUserId());
 		reviewStorage.deleteLike(reviewLike);
 	}

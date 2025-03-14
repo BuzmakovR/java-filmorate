@@ -6,12 +6,19 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.FilmLike;
 import ru.yandex.practicum.filmorate.storage.FilmLikeStorage;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Repository("filmLikeDbStorage")
 public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmLikeStorage {
 
 	private static final String FIND_LIKES_BY_ID = "SELECT * FROM films_likes WHERE film_id = ?";
+	private static final String FIND_USER_ID_WITH_SAME_LIKES = """
+			SELECT fl2.*
+			FROM films_likes fl
+			JOIN films_likes fl2 ON fl.film_id = fl2.film_id AND fl.user_id != fl2.user_id
+			WHERE fl.user_id = ?""";
 	private static final String DELETE_LIKES_BY_ID = "DELETE FROM films_likes WHERE film_id = ? AND user_id = ?";
 	private static final String DELETE_ALL_LIKES_BY_ID = "DELETE FROM films_likes WHERE film_id = ?";
 	private static final String INSERT_QUERY = "INSERT INTO films_likes(film_id, user_id) " +
@@ -35,6 +42,13 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 	}
 
 	@Override
+	public Set<Long> getUsersWithSameLikes(Long userId) {
+		return findMany(FIND_USER_ID_WITH_SAME_LIKES, userId).stream()
+				.map(FilmLike::getUserId)
+				.collect(Collectors.toSet());
+	}
+
+	@Override
 	public void addFilmLike(Long filmId, Long userId) {
 		updateWithoutCheck(
 				INSERT_QUERY,
@@ -55,13 +69,8 @@ public class FilmLikeDbStorage extends BaseRepository<FilmLike> implements FilmL
 	}
 
 	@Override
-	public Map<Long, Set<Long>> getAllLikes() {
-		List<FilmLike> likes = findMany(FIND_ALL_LIKES_QUERY);
-		Map<Long, Set<Long>> likesMap = new HashMap<>();
-		for (FilmLike like : likes) {
-			likesMap.computeIfAbsent(like.getUserId(), k -> new HashSet<>()).add(like.getFilmId());
-		}
-		return likesMap;
+	public Set<FilmLike> getAllLikes() {
+		return Set.copyOf(findMany(FIND_ALL_LIKES_QUERY));
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public interface FilmStorage {
@@ -29,6 +30,8 @@ public interface FilmStorage {
 	Collection<Film> getDirectorFilmSortedByYear(Long directorId);
 
 	Collection<Film> getDirectorFilmSortedByLike(Long directorId);
+
+	Collection<Film> getRecommendationFilmsByUserId(Long userId, Set<Long> otherUserIds);
 
 	Collection<Film> searchFilms(String query, List<String> searchFields);
 }

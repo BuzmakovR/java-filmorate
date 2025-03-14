@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.model.enums;
 
-public enum DirectorSortBy {
+public enum FilmSortBy {
 	YEAR,
 	LIKES;
 
-	public static DirectorSortBy fromString(String sortBy) {
-		for (DirectorSortBy sort : DirectorSortBy.values()) {
+	public static FilmSortBy fromString(String sortBy) {
+		for (FilmSortBy sort : FilmSortBy.values()) {
 			if (sort.name().equalsIgnoreCase(sortBy)) {
 				return sort;
 			}
