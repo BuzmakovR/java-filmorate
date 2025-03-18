@@ -8,8 +8,8 @@ import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Optional;
+import java.util.Set;
 
 @Component("inMemoryFriendRequestStorage")
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class InMemoryFriendRequestStorage implements FriendRequestStorage {
 
 	@Override
 	public void addUserFriend(Long userId, Long friendId) {
-		Optional<FriendRequest> reversRequestOptional = friends.stream()
+		Optional<FriendRequest> reverseRequestOptional = friends.stream()
 				.filter(friendRequest -> Objects.equals(friendRequest.getUserId(), friendId))
 				.findFirst();
 
@@ -36,11 +36,12 @@ public class InMemoryFriendRequestStorage implements FriendRequestStorage {
 				.friendId(friendId)
 				.build();
 
-		if (reversRequestOptional.isPresent()) {
-			FriendRequest reversRequest = reversRequestOptional.get();
+		if (reverseRequestOptional.isPresent()) {
+			FriendRequest reverseRequest = reverseRequestOptional.get();
 			newRequest.setConfirmed(true);
-			reversRequest.setConfirmed(true);
-			friends.add(reversRequest);
+			reverseRequest.setConfirmed(true);
+			friends.remove(reverseRequest);
+			friends.add(reverseRequest);
 		}
 		friends.add(newRequest);
 	}
@@ -57,8 +58,22 @@ public class InMemoryFriendRequestStorage implements FriendRequestStorage {
 				.findFirst()
 				.ifPresent(friendRequest -> {
 					friendRequest.setConfirmed(false);
+					friends.remove(friendRequest);
 					friends.add(friendRequest);
 				});
+	}
+
+	@Override
+	public void deleteAllFriendsRequestForUser(Long userId) {
+		friends.stream()
+				.filter(friendRequest -> Objects.equals(friendRequest.getUserId(), userId))
+				.toList()
+				.forEach(friends::remove);
+
+		friends.stream()
+				.filter(friendRequest -> Objects.equals(friendRequest.getFriendId(), userId))
+				.toList()
+				.forEach(friends::remove);
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -9,16 +10,12 @@ import ru.yandex.practicum.filmorate.storage.MpaRatingStorage;
 import java.util.Collection;
 
 @Service
+@RequiredArgsConstructor
 public class MpaRatingService {
 
 	@Autowired
 	@Qualifier("mpaRatingDbStorage")
 	private final MpaRatingStorage mpaRatingStorage;
-
-	@Autowired
-	public MpaRatingService(@Qualifier("mpaRatingDbStorage") MpaRatingStorage mpaRatingStorage) {
-		this.mpaRatingStorage = mpaRatingStorage;
-	}
 
 	public Collection<MpaRating> getRatings() {
 		return mpaRatingStorage.getAll();

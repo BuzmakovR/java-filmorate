@@ -5,7 +5,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import ru.yandex.practicum.filmorate.model.Feed;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -50,7 +60,7 @@ public class UserController {
 
 		User createdUser = userService.addUser(user);
 
-		log.info("Пользователь создан");
+		log.info("Пользователь создан c id {}", createdUser.getId());
 		log.debug(createdUser.toString());
 
 		return createdUser;
@@ -58,7 +68,7 @@ public class UserController {
 
 	@PutMapping
 	public User update(@Valid @RequestBody User newUser) {
-		log.info("Запрос на обновление пользователя");
+		log.info("Запрос на обновление пользователя c id {}", newUser.getId());
 
 		User updatedUser = userService.updateUser(newUser);
 
@@ -93,6 +103,16 @@ public class UserController {
 	@DeleteMapping("/{id}/friends/{friendId}")
 	public void deleteFriend(@PathVariable("id") long userId, @PathVariable("friendId") long friendId) {
 		userService.deleteFriend(userId, friendId);
+	}
+
+	@GetMapping("/{id}/recommendations")
+	public Collection<Film> recommendationFilms(@PathVariable("id") long userId) {
+		return userService.getRecommendationFilmsByUserId(userId);
+	}
+
+	@GetMapping("/{id}/feed")
+	public Collection<Feed> getFeed(@PathVariable("id") long userId) {
+		return userService.getFeed(userId);
 	}
 	//endregion
 }

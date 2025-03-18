@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -35,6 +37,12 @@ public class Film {
 
 	private final Collection<Genre> genres = new ArrayList<>();
 
+	private final Set<Director> directors = new HashSet<>();
+
+	private Integer likes;
+
+	private Integer releaseYear;
+
 	public void validate() {
 		if (getReleaseDate() != null && getReleaseDate().isBefore(LocalDate.of(1895, Month.DECEMBER, 28))) {
 			throw new ValidationException("Дата релиза фильма не может быть раньше 28 декабря 1895 года");
@@ -53,5 +61,19 @@ public class Film {
 
 	public void clearGenre() {
 		genres.clear();
+	}
+
+	public void setGenres(Collection<Genre> genres) {
+		this.genres.clear();
+		if (genres != null && !genres.isEmpty()) {
+			this.genres.addAll(genres);
+		}
+	}
+
+	public void setDirectors(Collection<Director> directors) {
+		this.directors.clear();
+		if (directors != null && !directors.isEmpty()) {
+			this.directors.addAll(directors);
+		}
 	}
 }

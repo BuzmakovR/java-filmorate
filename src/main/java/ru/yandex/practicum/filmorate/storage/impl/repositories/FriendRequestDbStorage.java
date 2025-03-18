@@ -13,13 +13,18 @@ public class FriendRequestDbStorage extends BaseRepository<FriendRequest> implem
 
 	private static final String FIND_FRIENDS_BY_ID = "SELECT * FROM friend_requests WHERE user_id = ?";
 	private static final String DELETE_FRIEND_BY_ID = "DELETE FROM friend_requests WHERE user_id = ? AND friend_id = ?";
+	private static final String DELETE_FRIENDS_BY_USER_ID_OR_FRIEND_ID = "DELETE FROM friend_requests WHERE user_id = ? or friend_id = ?";
 	private static final String INSERT_QUERY = "INSERT INTO friend_requests(user_id, friend_id, is_confirmed) " +
 			"SELECT ?, ?, " +
 			"CASE " +
 			"WHEN (SELECT count(1) FROM friend_requests WHERE friend_id = ? AND user_id = ?) = 1 THEN TRUE " +
 			"ELSE FALSE  " +
 			"END " +
-			"FROM dual";
+			"FROM dual " +
+			"WHERE NOT EXISTS (" +
+			"SELECT 1 from friend_requests " +
+			"WHERE user_id = ? AND friend_id = ?" +
+			")";
 	private static final String UPDATE_QUERY = "UPDATE friend_requests SET is_confirmed = " +
 			"CASE " +
 			"WHEN (SELECT count(1) FROM friend_requests WHERE friend_id = ? AND user_id = ?) = 1 THEN TRUE " +
@@ -45,12 +50,14 @@ public class FriendRequestDbStorage extends BaseRepository<FriendRequest> implem
 
 	@Override
 	public void addUserFriend(Long userId, Long friendId) {
-		update(
+		updateWithoutCheck(
 				INSERT_QUERY,
 				userId,
 				friendId,
 				friendId,
-				userId
+				userId,
+				userId,
+				friendId
 		);
 		updateWithoutCheck(
 				UPDATE_QUERY,
@@ -73,6 +80,15 @@ public class FriendRequestDbStorage extends BaseRepository<FriendRequest> implem
 				userId,
 				friendId,
 				friendId,
+				userId
+		);
+	}
+
+	@Override
+	public void deleteAllFriendsRequestForUser(Long userId) {
+		delete(
+				DELETE_FRIENDS_BY_USER_ID_OR_FRIEND_ID,
+				userId,
 				userId
 		);
 	}

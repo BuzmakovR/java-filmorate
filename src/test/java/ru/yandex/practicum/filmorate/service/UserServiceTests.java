@@ -6,12 +6,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FeedStorage;
+import ru.yandex.practicum.filmorate.storage.FilmLikeStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.FriendRequestStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -25,6 +30,15 @@ public abstract class UserServiceTests {
 
 	@Autowired
 	protected FriendRequestStorage friendRequestStorage;
+
+	@Autowired
+	protected FilmLikeStorage filmLikeStorage;
+
+	@Autowired
+	protected FilmStorage filmStorage;
+
+	@Autowired
+	protected FeedStorage feedStorage;
 
 	@BeforeEach
 	protected void initStorage() {
@@ -264,5 +278,37 @@ public abstract class UserServiceTests {
 		}
 		Assertions.assertEquals(1, commonFriends.size(), "Не удалось получить общего друга");
 		Assertions.assertEquals(commonFriend, commonFriends.getFirst(), "Значение полученное в качестве общего друга неверное");
+	}
+
+	@Test
+	void getRecommendationTest() {
+		User user1 = User.builder()
+				.login("user-service-add-user-11")
+				.email("email@email.ru")
+				.build();
+		User user2 = User.builder()
+				.login("user-service-add-user-22")
+				.email("email@email.ru")
+				.build();
+
+		Film film1 = Film.builder().name("film1").build();
+		Film film2 = Film.builder().name("film2").build();
+		Film film3 = Film.builder().name("film3").build();
+		try {
+			user1 = userService.addUser(user1);
+			user2 = userService.addUser(user2);
+			film1 = filmStorage.add(film1);
+			film2 = filmStorage.add(film2);
+			film3 = filmStorage.add(film3);
+			filmLikeStorage.addFilmLike(film1.getId(), user1.getId());
+			filmLikeStorage.addFilmLike(film1.getId(), user2.getId());
+			filmLikeStorage.addFilmLike(film2.getId(), user1.getId());
+			filmLikeStorage.addFilmLike(film2.getId(), user2.getId());
+			filmLikeStorage.addFilmLike(film3.getId(), user1.getId());
+		} catch (Exception e) {
+			Assertions.fail(e.getMessage());
+		}
+		Set<Film> recommendationFilmsByUserId = userService.getRecommendationFilmsByUserId(user2.getId());
+		Assertions.assertEquals(recommendationFilmsByUserId.stream().findFirst().get(), film3);
 	}
 }

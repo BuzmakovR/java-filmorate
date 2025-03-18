@@ -5,7 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -51,7 +60,7 @@ public class FilmController {
 
 		Film createdFilm = filmService.addFilm(film);
 
-		log.info("Фильм создан");
+		log.info("Фильм создан c id {}", createdFilm.getId());
 		log.debug(createdFilm.toString());
 
 		return film;
@@ -78,12 +87,15 @@ public class FilmController {
 
 	//region FILM-LIKE
 	@GetMapping("/popular")
-	public Collection<Film> friends(@RequestParam(name = "count", defaultValue = "10") int count) {
-		return filmService.getPopularFilms(count);
+	public Collection<Film> popular(@RequestParam(name = "count", defaultValue = "10") int count,
+									@RequestParam(name = "genreId", required = false) Long genreId,
+									@RequestParam(name = "year", required = false) Integer year) {
+		return filmService.getPopularFilms(count, genreId, year);
 	}
 
 	@PutMapping("/{id}/like/{userId}")
 	public void addLike(@PathVariable("id") long filmId, @PathVariable("userId") long userId) {
+		log.info("Пользователь с id {} лайкает фильм {}", userId, filmId);
 		filmService.addLike(filmId, userId);
 	}
 
@@ -92,4 +104,27 @@ public class FilmController {
 		filmService.deleteLike(filmId, userId);
 	}
 	//endregion
+
+	@GetMapping("/common")
+	public Collection<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+		log.debug("Просмотр всех общих фильмов");
+		return filmService.getCommonFilms(userId, friendId);
+	}
+
+	@GetMapping("/director/{directorId}")
+	public Collection<Film> getFilmsByDirector(
+			@PathVariable Long directorId,
+			@RequestParam(defaultValue = "likes") String sortBy) {
+
+		return filmService.getFilmsByDirectorSorted(directorId, sortBy);
+	}
+
+	@GetMapping("/search")
+	public Collection<Film> searchFilms(@RequestParam String query,
+										@RequestParam(defaultValue = "title") String by) {
+		log.info("Запрос на поиск фильмов: query={}, by={}", query, by);
+		Collection<Film> films = filmService.searchFilms(query, by);
+		log.debug("Найденные фильмы: {}", films);
+		return films;
+	}
 }
